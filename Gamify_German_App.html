@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circe's Quest — Learn German</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#070810;
+  --deep:#0d0f1e;
+  --surface:#13162a;
+  --surface2:#1a1f38;
+  --border:rgba(180,150,255,0.12);
+  --border2:rgba(180,150,255,0.22);
+  --gold:#c9a84c;
+  --gold2:#f0c96e;
+  --purple:#7c3aed;
+  --purple2:#a855f7;
+  --teal:#0d9488;
+  --teal2:#2dd4bf;
+  --rose:#e11d48;
+  --rose2:#fb7185;
+  --text:#e8e4f8;
+  --text2:#9d96c0;
+  --text3:#5a5480;
+  --cinzel:'Cinzel',serif;
+  --crimson:'Crimson Pro',serif;
+  --mono:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--void);color:var(--text);font-family:var(--crimson);font-weight:400;line-height:1.7;overflow-x:hidden;min-height:100vh}
+
+/* ── PARTICLES CANVAS ── */
+#cosmos{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:1;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ── SHARED COMPONENTS ── */
+.glow-text{
+  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--purple2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.btn{
+  font-family:var(--cinzel);font-size:0.78rem;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:13px 32px;border-radius:4px;border:none;cursor:pointer;
+  transition:all .35s var(--ease);position:relative;overflow:hidden;
+}
+.btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.08);transform:translateX(-101%);transition:transform .4s var(--ease)}
+.btn:hover::before{transform:translateX(0)}
+.btn-gold{background:linear-gradient(135deg,#c9a84c,#f0c96e);color:#0d0f1e;box-shadow:0 4px 24px rgba(201,168,76,0.35)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(201,168,76,0.5)}
+.btn-ghost{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,0.4)}
+.btn-ghost:hover{border-color:var(--gold);background:rgba(201,168,76,0.08);transform:translateY(-2px)}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 4px 20px rgba(13,148,136,0.3)}
+.btn-teal:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(45,212,191,0.4)}
+.btn-purple{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;box-shadow:0 4px 20px rgba(124,58,237,0.3)}
+.btn-purple:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(168,85,247,0.4)}
+.btn-rose{background:linear-gradient(135deg,var(--rose),var(--rose2));color:#fff}
+.btn-rose:hover{transform:translateY(-2px)}
+
+.card{
+  background:rgba(19,22,42,0.8);
+  border:1px solid var(--border);
+  border-radius:12px;
+  backdrop-filter:blur(20px);
+  transition:all .4s var(--ease);
+}
+.card:hover{border-color:var(--border2);box-shadow:0 8px 40px rgba(124,58,237,0.1)}
+
+/* ── XP BAR ── */
+.xp-bar-wrap{display:flex;align-items:center;gap:10px}
+.xp-bar{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:6px;transition:width 1s var(--ease)}
+.xp-label{font-family:var(--mono);font-size:0.65rem;color:var(--gold);letter-spacing:0.08em;white-space:nowrap}
+
+/* ── RUNE DECORATION ── */
+.rune{
+  font-family:var(--cinzel);color:rgba(201,168,76,0.15);
+  position:absolute;pointer-events:none;user-select:none;
+  animation:runeFloat 6s ease-in-out infinite;
+}
+@keyframes runeFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+
+/* ══════════════════════════════════
+   SCREEN 1 — INTRO / TITLE
+══════════════════════════════════ */
+#s-intro{
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px 24px;
+  background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(124,58,237,0.12) 0%,transparent 70%);
+}
+.intro-runes{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.intro-symbol{
+  position:absolute;font-family:var(--cinzel);
+  color:rgba(201,168,76,0.06);font-size:8rem;font-weight:900;
+  animation:symbolDrift 12s ease-in-out infinite;
+  user-select:none;
+}
+@keyframes symbolDrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+.intro-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:0.68rem;color:var(--teal2);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:28px;
+  padding:6px 16px;border:1px solid rgba(45,212,191,0.2);border-radius:100px;
+  background:rgba(45,212,191,0.06);
+}
+.intro-badge::before{content:'⚡';font-size:0.8rem}
+
+.intro-title{
+  font-family:var(--cinzel);
+  font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:900;line-height:1.05;
+  letter-spacing:0.04em;
+  margin-bottom:8px;
+}
+.intro-title .line1{display:block;background:linear-gradient(135deg,#f0c96e,#c9a84c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro-title .line2{display:block;color:rgba(232,228,248,0.9);font-size:0.55em;letter-spacing:0.18em;font-weight:600;margin-top:8px}
+
+.intro-subtitle{
+  font-family:var(--crimson);font-size:1.15rem;font-style:italic;
+  color:var(--text2);max-width:520px;margin:24px auto 40px;line-height:1.8;
+}
+
+.intro-story{
+  max-width:600px;margin:0 auto 48px;
+  background:rgba(13,15,30,0.7);border:1px solid rgba(201,168,76,0.15);
+  border-radius:12px;padding:28px 32px;
+  text-align:left;
+}
+.story-quote{
+  font-family:var(--crimson);font-size:1.05rem;font-style:italic;
+  color:var(--text2);line-height:1.9;margin-bottom:16px;
+}
+.story-quote strong{color:var(--gold2);font-style:normal;font-weight:500}
+.story-meta{font-family:var(--mono);font-size:0.65rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+
+.intro-path-preview{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;
+}
+.path-chip{
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:100px;border:1px solid;
+}
+.chip-purple{color:var(--purple2);border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.06)}
+.chip-gold{color:var(--gold);border-color:rgba(201,168,76,0.3);background:rgba(201,168,76,0.06)}
+.chip-teal{color:var(--teal2);border-color:rgba(45,212,191,0.3);background:rgba(45,212,191,0.06)}
+
+.intro-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* ══════════════════════════════════
+   SCREEN 2 — WORLD MAP / QUEST MAP
+══════════════════════════════════ */
+#s-map{padding:0}
+.map-header{
+  padding:20px 32px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(7,8,16,0.9);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);position:sticky;top:0;z-index:10;
+}
+.map-logo{font-family:var(--cinzel);font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:0.1em}
+.map-stats{display:flex;gap:20px;align-items:center}
+.stat-pill{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:0.7rem;
+  padding:5px 12px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+}
+.stat-pill .icon{font-size:0.85rem}
+
+.map-body{flex:1;padding:32px;overflow-y:auto}
+.map-greeting{margin-bottom:32px}
+.map-greeting h2{font-family:var(--cinzel);font-size:1.5rem;font-weight:700;color:var(--gold);margin-bottom:6px}
+.map-greeting p{font-family:var(--crimson);font-style:italic;color:var(--text2);font-size:1rem}
+
+/* Journey path */
+.journey-path{
+  max-width:700px;margin:0 auto;
+  position:relative;
+}
+.journey-path::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;
+  width:2px;background:linear-gradient(to bottom,var(--purple),rgba(124,58,237,0.1));
+  transform:translateX(-50%);
+}
+
+.week-block{margin-bottom:48px;position:relative}
+.week-label{
+  text-align:center;margin-bottom:24px;position:relative;z-index:1;
+}
+.week-label span{
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--purple2);background:var(--void);
+  padding:4px 16px;border:1px solid rgba(168,85,247,0.3);border-radius:100px;
+}
+
+.quest-node{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:16px;cursor:pointer;
+  animation:nodeFadeIn .5s var(--ease) both;
+}
+@keyframes nodeFadeIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+
+.quest-node:nth-child(even){flex-direction:row-reverse}
+.quest-node:nth-child(even) .node-content{text-align:right}
+
+.node-dot{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;flex-shrink:0;position:relative;z-index:1;
+  border:2px solid;transition:all .3s;
+}
+.node-dot.done{background:rgba(13,148,136,0.2);border-color:var(--teal2);box-shadow:0 0 20px rgba(45,212,191,0.2)}
+.node-dot.active{background:rgba(201,168,76,0.15);border-color:var(--gold);box-shadow:0 0 24px rgba(201,168,76,0.3);animation:nodePulse 2s infinite}
+.node-dot.locked{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.08);opacity:0.5}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.3)}50%{box-shadow:0 0 35px rgba(201,168,76,0.6)}}
+
+.node-content{flex:1}
+.node-title{font-family:var(--cinzel);font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:0.04em}
+.node-desc{font-family:var(--crimson);font-size:0.88rem;color:var(--text2);font-style:italic}
+.node-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.node-tag{font-family:var(--mono);font-size:0.58rem;padding:2px 8px;border-radius:100px;border:1px solid;letter-spacing:0.06em;text-transform:uppercase}
+.tag-conv{color:var(--teal2);border-color:rgba(45,212,191,0.25);background:rgba(45,212,191,0.06)}
+.tag-vocab{color:var(--purple2);border-color:rgba(168,85,247,0.25);background:rgba(168,85,247,0.06)}
+.tag-grammar{color:var(--gold);border-color:rgba(201,168,76,0.25);background:rgba(201,168,76,0.06)}
+.tag-test{color:var(--rose2);border-color:rgba(251,113,133,0.25);background:rgba(251,113,133,0.06)}
+
+.quest-node:hover .node-dot.active{transform:scale(1.1)}
+.quest-node:hover .node-dot.done{transform:scale(1.05)}
+
+/* ══════════════════════════════════
+   SCREEN 3 — LESSON / BATTLE SCREEN
+══════════════════════════════════ */
+#s-lesson{padding:0}
+.lesson-header{
+  padding:16px 32px;
+  display:flex;align-items:center;gap:20px;
+  background:rgba(7,8,16,0.95);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.back-btn{
+  font-family:var(--mono);font-size:0.7rem;color:var(--text3);
+  background:transparent;border:1px solid var(--border);border-radius:6px;
+  padding:6px 14px;cursor:pointer;transition:all .3s;letter-spacing:0.08em;
+}
+.back-btn:hover{color:var(--gold);border-color:rgba(201,168,76,0.4)}
+.lesson-progress{flex:1}
+.lesson-title-bar{font-family:var(--cinzel);font-size:0.78rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:4px}
+.hearts{display:flex;gap:4px;font-size:1rem}
+.lesson-xp-pill{font-family:var(--mono);font-size:0.65rem;color:var(--gold2);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);padding:4px 12px;border-radius:100px}
+
+.lesson-body{
+  flex:1;display:flex;flex-direction:column;
+  max-width:760px;margin:0 auto;padding:32px 24px;width:100%;
+}
+
+/* Scene panel */
+.scene-panel{
+  background:rgba(13,15,30,0.8);border:1px solid rgba(201,168,76,0.15);
+  border-radius:12px;padding:24px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.scene-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.scene-location{
+  font-family:var(--mono);font-size:0.62rem;color:var(--teal2);
+  letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px;
+}
+.scene-text{
+  font-family:var(--crimson);font-size:1.1rem;font-style:italic;
+  color:var(--text);line-height:1.85;
+}
+.scene-text strong{font-style:normal;color:var(--gold2)}
+.scene-speaker{
+  display:flex;align-items:center;gap:10px;margin-top:16px;
+  padding-top:16px;border-top:1px solid var(--border);
+}
+.speaker-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;flex-shrink:0;
+  border:2px solid rgba(201,168,76,0.3);
+}
+.speaker-name{font-family:var(--cinzel);font-size:0.72rem;color:var(--gold);letter-spacing:0.08em}
+.speaker-role{font-family:var(--crimson);font-size:0.78rem;color:var(--text3);font-style:italic}
+
+/* Question area */
+.question-type{
+  font-family:var(--mono);font-size:0.65rem;color:var(--purple2);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;
+}
+.question-text{
+  font-family:var(--cinzel);font-size:1.1rem;font-weight:600;
+  color:var(--text);margin-bottom:24px;line-height:1.5;
+  letter-spacing:0.02em;
+}
+.question-german{
+  display:block;font-family:var(--crimson);font-size:1.3rem;
+  font-style:italic;color:var(--gold2);margin-top:4px;
+}
+
+/* Answer options */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.option-btn{
+  background:rgba(19,22,42,0.9);border:1px solid var(--border2);
+  border-radius:10px;padding:16px 20px;cursor:pointer;
+  transition:all .3s var(--ease);text-align:left;
+  font-family:var(--crimson);font-size:1rem;color:var(--text);
+  line-height:1.4;
+}
+.option-btn:hover{border-color:rgba(201,168,76,0.5);background:rgba(201,168,76,0.06);transform:translateY(-2px)}
+.option-btn.correct{border-color:var(--teal2);background:rgba(45,212,191,0.1);color:var(--teal2)}
+.option-btn.wrong{border-color:var(--rose2);background:rgba(251,113,133,0.1);color:var(--rose2)}
+.option-btn.selected{border-color:var(--purple2);background:rgba(168,85,247,0.1)}
+.option-letter{
+  font-family:var(--mono);font-size:0.65rem;color:var(--text3);
+  letter-spacing:0.08em;display:block;margin-bottom:4px;text-transform:uppercase;
+}
+
+/* Text input challenge */
+.input-challenge{margin-bottom:24px}
+.challenge-input{
+  width:100%;background:rgba(13,15,30,0.8);
+  border:2px solid var(--border2);border-radius:10px;
+  padding:16px 20px;color:var(--text);
+  font-family:var(--crimson);font-size:1.1rem;
+  outline:none;transition:border-color .3s;
+  caret-color:var(--gold);
+}
+.challenge-input:focus{border-color:rgba(201,168,76,0.5);box-shadow:0 0 0 4px rgba(201,168,76,0.06)}
+.challenge-input::placeholder{color:var(--text3);font-style:italic}
+.input-hint{font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-top:8px;letter-spacing:0.06em}
+
+/* Word bank */
+.word-bank{margin-bottom:24px}
+.word-bank-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.word-chips{display:flex;gap:8px;flex-wrap:wrap;min-height:42px;padding:8px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:8px;margin-bottom:10px}
+.word-chip{
+  font-family:var(--crimson);font-size:0.95rem;
+  padding:6px 14px;background:rgba(19,22,42,0.9);
+  border:1px solid var(--border2);border-radius:6px;cursor:pointer;
+  transition:all .25s;color:var(--text);
+}
+.word-chip:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.word-chip.used{opacity:0.3;cursor:default}
+.word-chip.placed{background:rgba(168,85,247,0.15);border-color:var(--purple2);color:var(--purple2)}
+.sentence-slots{display:flex;gap:8px;flex-wrap:wrap;min-height:42px;padding:8px;background:rgba(201,168,76,0.03);border:1px solid rgba(201,168,76,0.15);border-radius:8px}
+.sentence-slot{
+  font-family:var(--crimson);font-size:0.95rem;
+  padding:6px 14px;background:rgba(201,168,76,0.08);
+  border:1px solid rgba(201,168,76,0.25);border-radius:6px;
+  cursor:pointer;color:var(--gold);min-width:60px;text-align:center;
+}
+.sentence-slot:hover{background:rgba(201,168,76,0.15)}
+
+/* Feedback banner */
+.feedback-banner{
+  border-radius:10px;padding:16px 20px;margin-bottom:20px;
+  display:none;align-items:flex-start;gap:14px;
+}
+.feedback-banner.show{display:flex}
+.feedback-banner.correct-fb{background:rgba(13,148,136,0.12);border:1px solid rgba(45,212,191,0.25)}
+.feedback-banner.wrong-fb{background:rgba(225,29,72,0.1);border:1px solid rgba(251,113,133,0.2)}
+.fb-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px}
+.fb-title{font-family:var(--cinzel);font-size:0.82rem;font-weight:700;letter-spacing:0.06em;margin-bottom:4px}
+.fb-title.c{color:var(--teal2)}.fb-title.w{color:var(--rose2)}
+.fb-text{font-family:var(--crimson);font-size:0.92rem;color:var(--text2);line-height:1.6}
+.fb-text .german{color:var(--gold);font-style:italic}
+
+/* Lesson action bar */
+.lesson-actions{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.hint-btn{
+  font-family:var(--mono);font-size:0.65rem;color:var(--text3);
+  background:transparent;border:1px solid var(--border);border-radius:6px;
+  padding:8px 16px;cursor:pointer;transition:all .3s;letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.hint-btn:hover{color:var(--purple2);border-color:rgba(168,85,247,0.4)}
+
+/* ══════════════════════════════════
+   SCREEN 4 — VICTORY / LEVEL UP
+══════════════════════════════════ */
+#s-victory{align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+.victory-icon{font-size:5rem;margin-bottom:24px;animation:victoryBounce 1s var(--ease) both}
+@keyframes victoryBounce{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0deg)}}
+.victory-title{font-family:var(--cinzel);font-size:2.5rem;font-weight:900;margin-bottom:8px}
+.victory-story{
+  max-width:520px;margin:20px auto 32px;
+  font-family:var(--crimson);font-size:1.05rem;font-style:italic;
+  color:var(--text2);line-height:1.8;
+}
+.victory-rewards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.reward-card{
+  background:rgba(19,22,42,0.8);border:1px solid var(--border2);
+  border-radius:10px;padding:16px 24px;min-width:100px;text-align:center;
+}
+.reward-icon{font-size:1.6rem;display:block;margin-bottom:6px}
+.reward-val{font-family:var(--cinzel);font-size:1.2rem;font-weight:700;color:var(--gold)}
+.reward-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+/* ══════════════════════════════════
+   SCREEN 5 — VOCABULARY GRIMOIRE
+══════════════════════════════════ */
+#s-vocab{padding:0}
+.vocab-header{
+  padding:20px 32px;background:rgba(7,8,16,0.9);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.vocab-body{flex:1;padding:28px 32px;overflow-y:auto}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:24px}
+.vocab-card{
+  background:rgba(19,22,42,0.8);border:1px solid var(--border);
+  border-radius:10px;padding:18px;cursor:pointer;
+  transition:all .35s var(--ease);position:relative;overflow:hidden;
+}
+.vocab-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--grad,linear-gradient(90deg,var(--purple),var(--gold)));
+  transform:scaleX(0);transition:transform .3s;transform-origin:left;
+}
+.vocab-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.vocab-card:hover::before{transform:scaleX(1)}
+.vocab-german{font-family:var(--cinzel);font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px}
+.vocab-english{font-family:var(--crimson);font-size:0.9rem;color:var(--text2);font-style:italic;margin-bottom:8px}
+.vocab-example{font-family:var(--crimson);font-size:0.82rem;color:var(--text3);line-height:1.5}
+.vocab-category{
+  font-family:var(--mono);font-size:0.58rem;color:var(--purple2);
+  letter-spacing:0.08em;text-transform:uppercase;margin-top:10px;
+  padding:2px 8px;background:rgba(168,85,247,0.08);border-radius:100px;
+  display:inline-block;
+}
+.vocab-search{
+  width:100%;background:rgba(13,15,30,0.8);border:1px solid var(--border2);
+  border-radius:8px;padding:12px 16px;color:var(--text);
+  font-family:var(--crimson);font-size:1rem;outline:none;
+  transition:border-color .3s;
+}
+.vocab-search:focus{border-color:rgba(201,168,76,0.4)}
+.vocab-search::placeholder{color:var(--text3);font-style:italic}
+
+/* ══════════════════════════════════
+   SCREEN 6 — DAILY SCHEDULE
+══════════════════════════════════ */
+#s-schedule{padding:0}
+.sched-body{flex:1;padding:28px 32px;overflow-y:auto;max-width:800px;margin:0 auto;width:100%}
+.day-block{
+  background:rgba(13,15,30,0.6);border:1px solid var(--border);
+  border-radius:12px;padding:20px 24px;margin-bottom:16px;
+}
+.day-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.day-num{font-family:var(--cinzel);font-size:0.75rem;color:var(--gold);letter-spacing:0.1em}
+.day-theme{font-family:var(--cinzel);font-size:1rem;font-weight:700;color:var(--text)}
+.day-status{font-family:var(--mono);font-size:0.6rem;padding:3px 10px;border-radius:100px;border:1px solid}
+.status-done{color:var(--teal2);border-color:rgba(45,212,191,0.3);background:rgba(45,212,191,0.08)}
+.status-today{color:var(--gold);border-color:rgba(201,168,76,0.3);background:rgba(201,168,76,0.08)}
+.status-upcoming{color:var(--text3);border-color:var(--border)}
+.day-sessions{display:flex;gap:10px;flex-wrap:wrap}
+.session-pill{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:0.65rem;
+  padding:6px 12px;border-radius:6px;border:1px solid var(--border);
+  color:var(--text2);background:rgba(255,255,255,0.02);
+}
+.session-icon{font-size:0.85rem}
+.session-time{color:var(--text3);margin-left:4px}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(7,8,16,0.95);border-top:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--text3);cursor:pointer;padding:6px 16px;border-radius:8px;
+  transition:all .3s;border:1px solid transparent;
+}
+.nav-item.active{color:var(--gold);border-color:rgba(201,168,76,0.2);background:rgba(201,168,76,0.06)}
+.nav-item:hover:not(.active){color:var(--text2)}
+.nav-icon{font-size:1.1rem}
+
+/* Confetti particle */
+.confetti{position:fixed;pointer-events:none;z-index:200;top:0;left:0;width:100%;height:100%;overflow:hidden}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear both}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+}
+
+/* ── SOUND & VOICE UI ── */
+.sound-toggle{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(13,15,30,0.9);border:1px solid var(--border2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:all .3s;
+}
+.sound-toggle:hover{border-color:var(--gold);transform:scale(1.1)}
+.sound-toggle.muted{opacity:0.4}
+.input-mode-bar{
+  display:flex;gap:0;margin-bottom:16px;
+  background:rgba(13,15,30,0.6);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+}
+.mode-btn{
+  flex:1;padding:10px 16px;border:none;background:transparent;
+  font-family:var(--mono);font-size:0.68rem;font-weight:500;
+  color:var(--text3);cursor:pointer;transition:all .25s;
+  letter-spacing:0.08em;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.mode-btn.active{background:rgba(201,168,76,0.12);color:var(--gold);border-bottom:2px solid var(--gold)}
+.mode-btn:hover:not(.active){color:var(--text2)}
+.voice-panel{
+  display:none;flex-direction:column;align-items:center;
+  gap:16px;padding:24px;margin-bottom:16px;
+  background:rgba(13,15,30,0.8);border:1px solid rgba(124,58,237,0.25);
+  border-radius:12px;
+}
+.voice-panel.show{display:flex}
+.waveform{display:flex;align-items:center;gap:3px;height:48px}
+.waveform-bar{
+  width:3px;border-radius:3px;
+  background:linear-gradient(to top,var(--purple),var(--gold));
+  height:4px;transition:height .1s;
+}
+.waveform.listening .waveform-bar{animation:waveAnim var(--d,.4s) ease-in-out infinite alternate}
+@keyframes waveAnim{from{height:4px}to{height:var(--h,24px)}}
+.mic-btn{
+  width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--purple),var(--purple2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;transition:all .3s;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
+}
+.mic-btn.listening{
+  background:linear-gradient(135deg,var(--rose),var(--rose2));
+  box-shadow:0 4px 28px rgba(225,29,72,0.5);
+  animation:micPulse 1.2s infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 4px 28px rgba(225,29,72,0.5),0 0 0 0 rgba(225,29,72,0.3)}
+  50%{box-shadow:0 4px 28px rgba(225,29,72,0.6),0 0 0 14px rgba(225,29,72,0)}
+}
+.mic-status{font-family:var(--mono);font-size:0.68rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+.mic-status.listening{color:var(--rose2)}
+.mic-status.processing{color:var(--gold)}
+.ai-convo-panel{
+  background:rgba(7,8,16,0.95);border:1px solid rgba(201,168,76,0.15);
+  border-radius:12px;overflow:hidden;
+  margin-bottom:16px;display:none;
+}
+.ai-convo-panel.open{display:block}
+.convo-header{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.convo-title{font-family:var(--mono);font-size:0.65rem;color:var(--teal2);letter-spacing:0.12em;text-transform:uppercase}
+.convo-tts-btn{
+  font-family:var(--mono);font-size:0.62rem;color:var(--text3);
+  background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:3px 10px;cursor:pointer;transition:all .3s;letter-spacing:0.06em;
+}
+.convo-tts-btn:hover{color:var(--gold);border-color:rgba(201,168,76,0.3)}
+.convo-messages{padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.msg-av{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:0.9rem;
+  background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.3);
+}
+.msg.user .msg-av{background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.3)}
+.msg-bubble{
+  max-width:78%;padding:10px 14px;border-radius:10px;
+  font-family:var(--crimson);font-size:0.92rem;line-height:1.65;
+}
+.msg-bubble.npc{background:rgba(19,22,42,0.9);color:var(--text);border:1px solid var(--border)}
+.msg-bubble.user-b{background:rgba(201,168,76,0.1);color:var(--gold2);border:1px solid rgba(201,168,76,0.2)}
+.msg-bubble.ai-thinking{color:var(--text3);font-style:italic}
+.msg-score{font-family:var(--mono);font-size:0.62rem;padding:2px 8px;border-radius:100px;margin-top:5px;display:inline-block}
+.score-good{background:rgba(45,212,191,0.1);color:var(--teal2)}
+.score-ok{background:rgba(201,168,76,0.1);color:var(--gold)}
+.score-bad{background:rgba(251,113,133,0.1);color:var(--rose2)}
+.typing-dots span{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--text3);margin:0 2px;
+  animation:dotAnim .8s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes dotAnim{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+/* RESPONSIVE */
+@media(max-width:640px){
+  .options-grid{grid-template-columns:1fr}
+  .lesson-body{padding:20px 16px}
+  .map-body,.vocab-body,.sched-body{padding:20px 16px}
+  .vocab-grid{grid-template-columns:1fr 1fr}
+  .intro-title{font-size:2.4rem}
+  .journey-path::before{left:24px}
+  .quest-node{flex-direction:row!important}
+  .quest-node .node-content{text-align:left!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+
+<!-- ══ SCREEN 1: INTRO ══ -->
+<div id="s-intro" class="screen active">
+  <div class="intro-runes">
+    <div class="intro-symbol" style="top:5%;left:3%;animation-delay:0s">Ψ</div>
+    <div class="intro-symbol" style="top:15%;right:5%;animation-delay:2s;font-size:6rem">Ω</div>
+    <div class="intro-symbol" style="bottom:20%;left:8%;animation-delay:4s;font-size:5rem">Δ</div>
+    <div class="intro-symbol" style="bottom:10%;right:10%;animation-delay:1s;font-size:9rem">Θ</div>
+  </div>
+
+  <div class="intro-badge">A1 → B1 · 30 Days · 2h Daily</div>
+
+  <div class="intro-title">
+    <span class="line1">Circe's Quest</span>
+    <span class="line2">Lerne Deutsch · Learn German</span>
+  </div>
+
+  <p class="intro-subtitle">
+    The sorceress Circe wanders realms unknown, searching for her prince across lands where only those who speak the tongue of mortals may pass.
+  </p>
+
+  <div class="intro-story">
+    <p class="story-quote">
+      <strong>"I, Circe, daughter of Helios</strong>, have crossed the Aegean and walked among mortals. But the gates to the northern kingdom — the land they call <strong>Deutschland</strong> — will not open for one who cannot speak their ancient tongue.<br><br>
+      Each lesson I complete breaks a seal. Each word I learn lights my path. My prince awaits beyond the final gate. <strong>Hilf mir.</strong> Help me."
+    </p>
+    <div class="story-meta">// Story intro · Chapter I · The Northern Quest</div>
+  </div>
+
+  <div class="intro-path-preview">
+    <div class="path-chip chip-gold">⚔ 4 Realms · 4 Weeks</div>
+    <div class="path-chip chip-purple">🌀 Conversation-First</div>
+    <div class="path-chip chip-teal">✦ A1 → B1 Journey</div>
+    <div class="path-chip chip-gold">🔥 2h/day · 30 Days</div>
+  </div>
+
+  <div class="intro-cta">
+    <button class="btn btn-gold" onclick="showScreen('s-map')">Begin the Quest ⚡</button>
+    <button class="btn btn-ghost" onclick="showScreen('s-schedule')">View 30-Day Plan</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: QUEST MAP ══ -->
+<div id="s-map" class="screen">
+  <div class="map-header">
+    <div class="map-logo">⚡ Circe's Quest</div>
+    <div class="map-stats">
+      <div class="stat-pill"><span class="icon">🔥</span><span id="streak-count">1</span> streak</div>
+      <div class="stat-pill"><span class="icon">⭐</span><span id="xp-count">120</span> XP</div>
+      <div class="stat-pill"><span class="icon">❤️</span><span id="hearts-count">5</span></div>
+    </div>
+  </div>
+
+  <div class="map-body">
+    <div class="map-greeting">
+      <h2>Realm I — The Tavern of Tongues</h2>
+      <p>"Every great quest begins with a single word, Circe. Learn to greet the mortals."</p>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div class="xp-bar-wrap">
+        <div class="xp-bar"><div class="xp-fill" id="xp-bar-fill" style="width:12%"></div></div>
+        <div class="xp-label">Week 1 · 120/1000 XP</div>
+      </div>
+    </div>
+
+    <div class="journey-path">
+
+      <!-- WEEK 1 -->
+      <div class="week-block">
+        <div class="week-label"><span>⚔ Week 1 — The Tavern of Tongues (A1 Foundation)</span></div>
+
+        <div class="quest-node" onclick="startLesson('greetings')">
+          <div class="node-dot done">✓</div>
+          <div class="node-content">
+            <div class="node-title">Day 1 — Hallo! First Greetings</div>
+            <div class="node-desc">"Circe learns to greet the innkeeper and order her first meal"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-vocab">Vocab</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node" onclick="startLesson('numbers')">
+          <div class="node-dot active">2</div>
+          <div class="node-content">
+            <div class="node-title">Day 2 — Zahlen & Preise (Numbers & Prices)</div>
+            <div class="node-desc">"The merchant demands payment. Circe must count her gold coins in German"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-vocab">Numbers</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node" onclick="startLesson('introduce')">
+          <div class="node-dot locked">3</div>
+          <div class="node-content">
+            <div class="node-title">Day 3 — Ich bin Circe (Introductions)</div>
+            <div class="node-desc">"The guards demand to know who she is. Circe must introduce herself"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-grammar">Grammar</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node" onclick="startLesson('directions')">
+          <div class="node-dot locked">4</div>
+          <div class="node-content">
+            <div class="node-title">Day 4 — Wo ist der Prinz? (Directions)</div>
+            <div class="node-desc">"Circe asks villagers for directions to the castle"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-vocab">Directions</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node" onclick="startLesson('food')">
+          <div class="node-dot locked">5</div>
+          <div class="node-content">
+            <div class="node-title">Day 5 — Im Restaurant (Ordering Food)</div>
+            <div class="node-desc">"The innkeeper speaks only German. Circe must order food for her journey"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-vocab">Food</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node" onclick="startLesson('w1-test')">
+          <div class="node-dot locked">⚔</div>
+          <div class="node-content">
+            <div class="node-title">Day 7 — Boss Battle: The Tavern Master</div>
+            <div class="node-desc">"The Tavern Master blocks the gate. Defeat him with all Week 1 knowledge!"</div>
+            <div class="node-tags"><span class="node-tag tag-test">Boss Test</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 2 -->
+      <div class="week-block">
+        <div class="week-label"><span>🏰 Week 2 — The Castle of Grammar (A2)</span></div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">8</div>
+          <div class="node-content">
+            <div class="node-title">Day 8 — Der, Die, Das (The Article Riddle)</div>
+            <div class="node-desc">"Three sphinx guardians: each speaks a different article. Learn to tell them apart"</div>
+            <div class="node-tags"><span class="node-tag tag-grammar">Grammar</span><span class="node-tag tag-vocab">Articles</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">9</div>
+          <div class="node-content">
+            <div class="node-title">Day 9 — Verb Conjugation Dungeon</div>
+            <div class="node-desc">"Sein, Haben, Werden — three enchanted verbs Circe must master to unlock the dungeon"</div>
+            <div class="node-tags"><span class="node-tag tag-grammar">Grammar</span><span class="node-tag tag-conv">Conversation</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">10</div>
+          <div class="node-content">
+            <div class="node-title">Day 10 — Shopping at the Market</div>
+            <div class="node-desc">"Circe shops for supplies. Real shopping dialogue at a German Markt"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-vocab">Shopping</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">⚔</div>
+          <div class="node-content">
+            <div class="node-title">Day 14 — Boss Battle: The Grammar Sphinx</div>
+            <div class="node-desc">"Answer the Sphinx's riddles — all in German grammar — or be turned to stone"</div>
+            <div class="node-tags"><span class="node-tag tag-test">Boss Test</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 3 -->
+      <div class="week-block">
+        <div class="week-label"><span>🌊 Week 3 — The City of Conversation (B1 Approach)</span></div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">15</div>
+          <div class="node-content">
+            <div class="node-title">Day 15 — At the Train Station</div>
+            <div class="node-desc">"Circe must buy a ticket and ask about platforms — all in German"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-grammar">Grammar</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">16</div>
+          <div class="node-content">
+            <div class="node-title">Day 16 — Talking About Yourself</div>
+            <div class="node-desc">"Circe meets a companion and must describe her life, work, and quest"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">Conversation</span><span class="node-tag tag-grammar">Grammar</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">⚔</div>
+          <div class="node-content">
+            <div class="node-title">Day 21 — Boss Battle: The City Magistrate</div>
+            <div class="node-desc">"The Magistrate tests Circe's ability to hold a full German conversation"</div>
+            <div class="node-tags"><span class="node-tag tag-test">Boss Test</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK 4 -->
+      <div class="week-block">
+        <div class="week-label"><span>👑 Week 4 — The Final Gate (B1 Mastery)</span></div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">22</div>
+          <div class="node-content">
+            <div class="node-title">Day 22 — Expressing Opinions</div>
+            <div class="node-desc">"Circe debates the castle council — agree, disagree, and persuade in German"</div>
+            <div class="node-tags"><span class="node-tag tag-conv">B1 Level</span><span class="node-tag tag-grammar">Grammar</span></div>
+          </div>
+        </div>
+
+        <div class="quest-node">
+          <div class="node-dot locked">30</div>
+          <div class="node-content">
+            <div class="node-title">Day 30 — Final Boss: The Gate of Deutschland</div>
+            <div class="node-desc">"The great gate demands proof: a full B1 conversation, grammar test, and letter. Circe's prince awaits beyond."</div>
+            <div class="node-tags"><span class="node-tag tag-test">Final Boss · B1</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showScreen('s-map')"><span class="nav-icon">🗺</span>Quest</div>
+    <div class="nav-item" onclick="showScreen('s-lesson','numbers')"><span class="nav-icon">⚔</span>Today</div>
+    <div class="nav-item" onclick="showScreen('s-vocab')"><span class="nav-icon">📖</span>Grimoire</div>
+    <div class="nav-item" onclick="showScreen('s-schedule')"><span class="nav-icon">📅</span>Plan</div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: LESSON ══ -->
+<div id="s-lesson" class="screen">
+  <div class="lesson-header">
+    <button class="back-btn" onclick="showScreen('s-map')">← Back</button>
+    <div class="lesson-progress" style="flex:1;padding:0 16px">
+      <div class="lesson-title-bar" id="lesson-title-bar">Day 2 — Zahlen & Preise</div>
+      <div class="xp-bar-wrap" style="margin-top:4px">
+        <div class="xp-bar"><div class="xp-fill" id="lesson-xp-fill" style="width:0%"></div></div>
+        <div class="xp-label" id="lesson-progress-label">0 / 6</div>
+      </div>
+    </div>
+    <div class="hearts" id="lesson-hearts">❤️❤️❤️</div>
+    <div class="lesson-xp-pill" id="lesson-xp-pill">+0 XP</div>
+    <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()" title="Toggle sound" style="margin-left:10px;flex-shrink:0">🔊</button>
+  </div>
+
+  <div class="lesson-body">
+    <!-- Scene -->
+    <div class="scene-panel" id="scene-panel">
+      <div class="scene-location" id="scene-location">📍 The Bavarian Market · Day 2</div>
+      <div class="scene-text" id="scene-text">
+        A merchant stands behind a colourful stall of spices and scrolls. He eyes Circe suspiciously, then holds up five fingers. <strong>"Fünf Euro, bitte!"</strong> he says gruffly. Circe must understand numbers to continue her quest...
+      </div>
+      <div class="scene-speaker">
+        <div class="speaker-avatar">🧙‍♀️</div>
+        <div><div class="speaker-name">Circe</div><div class="speaker-role">Sorceress · Seeker of Languages</div></div>
+      </div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-type" id="q-type">🎯 Multiple Choice — Translation</div>
+    <div class="question-text" id="q-text">
+      The merchant shouts a number. What does he mean?
+      <span class="question-german" id="q-german">"Fünfzehn Euro, bitte!"</span>
+    </div>
+
+    <!-- AI Conversation Panel (shown during convo lessons) -->
+    <div class="ai-convo-panel" id="ai-convo-panel">
+      <div class="convo-header">
+        <div class="convo-title">🌀 Live Conversation · AI Character</div>
+        <button class="convo-tts-btn" onclick="replayLastNPC()" title="Replay NPC voice">🔊 Replay</button>
+      </div>
+      <div class="convo-messages" id="convo-messages"></div>
+    </div>
+
+    <!-- Input Mode Toggle (for translate + convo questions) -->
+    <div class="input-mode-bar" id="input-mode-bar" style="display:none">
+      <button class="mode-btn active" id="mode-type-btn" onclick="setInputMode('type')">
+        ⌨ Type Answer
+      </button>
+      <button class="mode-btn" id="mode-speak-btn" onclick="setInputMode('speak')">
+        🎙 Speak Answer
+      </button>
+    </div>
+
+    <!-- Voice Panel -->
+    <div class="voice-panel" id="voice-panel">
+      <div class="waveform" id="waveform">
+        <div class="waveform-bar" style="--d:.35s;--h:8px"></div>
+        <div class="waveform-bar" style="--d:.45s;--h:20px"></div>
+        <div class="waveform-bar" style="--d:.30s;--h:32px"></div>
+        <div class="waveform-bar" style="--d:.50s;--h:18px"></div>
+        <div class="waveform-bar" style="--d:.38s;--h:40px"></div>
+        <div class="waveform-bar" style="--d:.42s;--h:28px"></div>
+        <div class="waveform-bar" style="--d:.33s;--h:36px"></div>
+        <div class="waveform-bar" style="--d:.48s;--h:16px"></div>
+        <div class="waveform-bar" style="--d:.36s;--h:44px"></div>
+        <div class="waveform-bar" style="--d:.44s;--h:22px"></div>
+        <div class="waveform-bar" style="--d:.31s;--h:30px"></div>
+        <div class="waveform-bar" style="--d:.52s;--h:12px"></div>
+      </div>
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎙</button>
+      <div class="mic-status" id="mic-status">Tap to speak in German</div>
+      <div id="voice-transcript" style="font-family:var(--crimson);font-size:0.95rem;font-style:italic;color:var(--text2);text-align:center;min-height:24px;padding:0 20px"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="options-grid" id="options-area">
+      <button class="option-btn" onclick="checkAnswer(this,'wrong')"><span class="option-letter">A</span>Five euros, please</button>
+      <button class="option-btn" onclick="checkAnswer(this,'correct')"><span class="option-letter">B</span>Fifteen euros, please</button>
+      <button class="option-btn" onclick="checkAnswer(this,'wrong')"><span class="option-letter">C</span>Fifty euros, please</button>
+      <button class="option-btn" onclick="checkAnswer(this,'wrong')"><span class="option-letter">D</span>Fifty-five euros, please</button>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback-banner" id="feedback-banner">
+      <div class="fb-icon" id="fb-icon">✦</div>
+      <div>
+        <div class="fb-title" id="fb-title">Correct!</div>
+        <div class="fb-text" id="fb-text">Well done!</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="lesson-actions">
+      <button class="hint-btn" onclick="showHint()">💡 Hint (−5 XP)</button>
+      <button class="btn btn-gold" id="continue-btn" onclick="nextQuestion()" style="display:none">Continue →</button>
+      <button class="btn btn-ghost" id="check-btn" onclick="checkTextAnswer()">Check Answer</button>
+    </div>
+  </div>
+
+  <div id="hint-box" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:8px;font-family:var(--crimson);font-size:0.92rem;color:var(--purple2);font-style:italic"></div>
+</div>
+
+<!-- ══ SCREEN 4: VICTORY ══ -->
+<div id="s-victory" class="screen">
+  <div class="confetti" id="confetti-area"></div>
+  <div class="victory-icon" id="victory-icon">⚡</div>
+  <div class="victory-title glow-text" id="victory-title">Lesson Complete!</div>
+  <div class="victory-story" id="victory-story">
+    "The merchant bows, impressed by Circe's knowledge of numbers. He hands her a golden map fragment and steps aside. The path forward is clear!"
+  </div>
+  <div class="victory-rewards">
+    <div class="reward-card"><span class="reward-icon">⭐</span><div class="reward-val" id="v-xp">+80 XP</div><div class="reward-lbl">Experience</div></div>
+    <div class="reward-card"><span class="reward-icon">🔥</span><div class="reward-val">2</div><div class="reward-lbl">Day Streak</div></div>
+    <div class="reward-card"><span class="reward-icon">📜</span><div class="reward-val" id="v-words">12</div><div class="reward-lbl">Words Learned</div></div>
+    <div class="reward-card"><span class="reward-icon">💎</span><div class="reward-val" id="v-acc">83%</div><div class="reward-lbl">Accuracy</div></div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-gold" onclick="showScreen('s-map')">Continue Quest →</button>
+    <button class="btn btn-ghost" onclick="showScreen('s-vocab')">View Grimoire</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 5: VOCABULARY GRIMOIRE ══ -->
+<div id="s-vocab" class="screen">
+  <div class="vocab-header">
+    <button class="back-btn" onclick="showScreen('s-map')">← Back</button>
+    <div style="flex:1;padding:0 16px">
+      <div style="font-family:var(--cinzel);font-size:0.9rem;font-weight:700;color:var(--gold);letter-spacing:0.08em">📖 The Grimoire of Words</div>
+      <div style="font-family:var(--crimson);font-size:0.82rem;color:var(--text3);font-style:italic">Circe's collected German knowledge</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--purple2)" id="vocab-count">24 words learned</div>
+  </div>
+  <div class="vocab-body">
+    <input class="vocab-search" placeholder="Search German words... z.B. hallo, danke" oninput="filterVocab(this.value)">
+    <div class="vocab-grid" id="vocab-grid"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('s-map')"><span class="nav-icon">🗺</span>Quest</div>
+    <div class="nav-item" onclick="showScreen('s-lesson','numbers')"><span class="nav-icon">⚔</span>Today</div>
+    <div class="nav-item active" onclick="showScreen('s-vocab')"><span class="nav-icon">📖</span>Grimoire</div>
+    <div class="nav-item" onclick="showScreen('s-schedule')"><span class="nav-icon">📅</span>Plan</div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 6: 30-DAY SCHEDULE ══ -->
+<div id="s-schedule" class="screen">
+  <div class="vocab-header">
+    <button class="back-btn" onclick="showScreen('s-map')">← Back</button>
+    <div style="flex:1;padding:0 16px">
+      <div style="font-family:var(--cinzel);font-size:0.9rem;font-weight:700;color:var(--gold);letter-spacing:0.08em">📅 30-Day Battle Plan</div>
+      <div style="font-family:var(--crimson);font-size:0.82rem;color:var(--text3);font-style:italic">2 hours daily · A1 → B1 in 30 days</div>
+    </div>
+  </div>
+  <div class="sched-body" id="sched-body"></div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('s-map')"><span class="nav-icon">🗺</span>Quest</div>
+    <div class="nav-item" onclick="showScreen('s-lesson','numbers')"><span class="nav-icon">⚔</span>Today</div>
+    <div class="nav-item" onclick="showScreen('s-vocab')"><span class="nav-icon">📖</span>Grimoire</div>
+    <div class="nav-item active" onclick="showScreen('s-schedule')"><span class="nav-icon">📅</span>Plan</div>
+  </div>
+</div>
+
+<script>
+// ── COSMOS PARTICLES ─────────────────────────────────
+const canvas=document.getElementById('cosmos'),ctx=canvas.getContext('2d');
+let W=canvas.width=innerWidth,H=canvas.height=innerHeight;
+const stars=Array.from({length:180},()=>({
+  x:Math.random()*W,y:Math.random()*H,
+  r:Math.random()*1.5+0.2,
+  a:Math.random(),
+  speed:Math.random()*0.003+0.001,
+  twinkle:Math.random()*Math.PI*2
+}));
+function drawCosmos(){
+  ctx.clearRect(0,0,W,H);
+  stars.forEach(s=>{
+    s.twinkle+=s.speed;
+    s.a=0.3+Math.sin(s.twinkle)*0.4;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(200,190,255,${s.a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawCosmos);
+}
+drawCosmos();
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight});
+
+// ── SCREEN NAVIGATION ────────────────────────────────
+function showScreen(id,lessonId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='s-lesson'&&lessonId){loadLesson(lessonId)}
+  if(id==='s-vocab'){renderVocab()}
+  if(id==='s-schedule'){renderSchedule()}
+  if(id==='s-victory'){launchConfetti()}
+  // Update bottom nav
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(id==='s-map')document.querySelectorAll('.nav-item')[0].classList.add('active');
+  if(id==='s-vocab')document.querySelectorAll('.nav-item')[2].classList.add('active');
+  if(id==='s-schedule')document.querySelectorAll('.nav-item')[3].classList.add('active');
+}
+
+function startLesson(id){
+  const node=event.currentTarget.querySelector('.node-dot');
+  if(node.classList.contains('locked'))return;
+  showScreen('s-lesson',id);
+}
+
+// ── LESSON DATA ──────────────────────────────────────
+const lessons={
+  greetings:{
+    title:'Day 1 — Hallo! First Greetings',
+    location:'📍 The City Gates · Day 1',
+    questions:[
+      {type:'mc',scene:'A guard at the city gate looks at Circe and says something. She needs to understand if it is a greeting or a threat...',german:'„Guten Morgen! Wie heißen Sie?"',question:'What is the guard asking?',options:['Good evening! Where are you from?','Good morning! What is your name?','Good day! What do you want?','Good night! Are you lost?'],correct:1,hint:'Morgen = Morning. Heißen = to be called/named.',feedback:{c:'Excellent! "Guten Morgen" = Good morning. "Wie heißen Sie?" = What is your name? (formal)',w:'Close, but not right. "Morgen" means morning, and "heißen" means "to be called". So "Wie heißen Sie?" asks for your name.'}},
+      {type:'translate',scene:'The guard nods and asks Circe to introduce herself. She must respond in German.',question:'How does Circe say "My name is Circe" in German?',german:'',correct:'Ich heiße Circe',hint:'Ich = I · heiße = am called · Circe = Circe',feedback:{c:'"Ich heiße Circe" — perfect! You can also say "Mein Name ist Circe" (My name is Circe).',w:'"Ich heiße Circe" — try again. Ich = I, heiße = am called.'}},
+      {type:'mc',scene:'A friendly merchant approaches and greets Circe warmly in the afternoon.',german:'„Guten Tag! Wie geht es Ihnen?"',question:'What is the merchant asking?',options:['Good morning! Are you well?','Good night! How are you?','Good day! How are you? (formal)','Good evening! Where do you come from?'],correct:2,hint:'"Tag" = day/afternoon. "Wie geht es Ihnen?" = How are you? (formal)',feedback:{c:'Perfect! "Guten Tag" = Good day/afternoon. "Wie geht es Ihnen?" = How are you? (formal polite form)',w:'"Tag" means day/afternoon, not morning or evening. And "Wie geht es Ihnen?" is the formal way of asking how someone is.'}},
+      {type:'wordbank',scene:'Circe wants to tell the merchant she is doing well. Build her response!',question:'Build the sentence: "Thank you, I am doing well."',words:['Danke,','es','mir','geht','gut.'],correct:['Danke,','es','geht','mir','gut.'],hint:'"Danke" = Thank you · "Es geht mir gut" = I am doing well',feedback:{c:'"Danke, es geht mir gut!" — This is the perfect natural response. Remember this phrase!',w:'The correct order is: Danke, es geht mir gut. — In German, the verb often comes second.'}},
+    ]
+  },
+  numbers:{
+    title:'Day 2 — Zahlen & Preise',
+    location:'📍 The Bavarian Market · Day 2',
+    questions:[
+      {type:'mc',scene:'A merchant stands behind a colourful stall of spices. He holds up fingers. "Fünfzehn Euro, bitte!" he says gruffly.',german:'„Fünfzehn Euro, bitte!"',question:'What does the merchant say?',options:['Five euros, please','Fifty euros, please','Fifteen euros, please','Fifty-five euros, please'],correct:2,hint:'Fünf = 5 · Zehn = 10 · Fünfzehn = 15',feedback:{c:'"Fünfzehn" = Fifteen! Numbers 13-19 follow the pattern: [units] + zehn. So fünf (5) + zehn (10) = fünfzehn (15).',w:'"Fünfzehn" = Fifteen. The pattern: [number] + zehn means "teen". Dreizehn=13, Vierzehn=14, Fünfzehn=15...'}},
+      {type:'mc',scene:'Circe needs to count her gold coins. She has three coins of ten.',german:'Wie viel ist dreißig?',question:'What number is "dreißig"?',options:['13','23','30','33'],correct:2,hint:'Dreißig is an exception — it does NOT follow the normal pattern of "drei + zig".',feedback:{c:'"Dreißig" = 30! The tens in German: zwanzig(20), dreißig(30), vierzig(40), fünfzig(50)...',w:'"Dreißig" = 30. This is one of the tricky ones — it is not "dreizig" but "dreißig" (with ß).'}},
+      {type:'translate',scene:'The baker asks Circe to tell him the price she wants to pay. She wants to say "twenty euros".',question:'How do you say "Twenty euros" in German?',german:'',correct:'Zwanzig Euro',hint:'Zwanzig = 20 · Euro stays the same in German',feedback:{c:'"Zwanzig Euro" — perfect! Good news: Euro does not change in German (no Euros with s).',w:'"Zwanzig Euro" — zwanzig = twenty. Euro stays the same (no "s" added in German).'}},
+      {type:'mc',scene:'A riddle carved on the market arch! Circe must solve it to pass.',german:'„Was ist sieben plus acht?"',question:'What is the answer to "sieben plus acht"?',options:['Dreizehn — 13','Fünfzehn — 15','Vierzehn — 14','Sechzehn — 16'],correct:1,hint:'Sieben=7, Acht=8. 7+8=?',feedback:{c:'7+8=15! "Fünfzehn" — The arch glows gold and swings open. Circe passes!',w:'Sieben(7) + acht(8) = fünfzehn(15). Count carefully!'}},
+      {type:'mc',scene:'The final merchant tests Circe. He shows her a price tag.',german:'„Das kostet zweiundzwanzig Euro."',question:'How much does it cost?',options:['12 euros','20 euros','22 euros','32 euros'],correct:2,hint:'Zwei = 2 · und = and · zwanzig = 20. German compounds numbers: "two-and-twenty"',feedback:{c:'"Zweiundzwanzig" = 22! German builds numbers like this: 21=einundzwanzig, 22=zweiundzwanzig, 23=dreiundzwanzig...',w:'"Zweiundzwanzig" = 22. German says numbers backwards from English: "two-and-twenty" = 22.'}},
+      {type:'translate',scene:'Circe wants to ask the price. She asks the vendor.',question:'How does Circe ask "How much does this cost?"',german:'',correct:'Was kostet das?',hint:'Was = What · kostet = costs · das = this/that',feedback:{c:'"Was kostet das?" — The vendor bows! This is the most useful shopping phrase in German.',w:'"Was kostet das?" = What does this cost? Was=What, kostet=costs, das=this/that.'}},
+    ]
+  },
+  introduce:{
+    title:'Day 3 — Ich bin Circe',
+    location:'📍 The Castle Gates · Day 3',
+    questions:[
+      {type:'mc',scene:'The castle guard demands identification. He speaks formally.',german:'„Woher kommen Sie?"',question:'What does the guard want to know?',options:['What is your name?','Where do you come from?','Why are you here?','How old are you?'],correct:1,hint:'Woher = From where · kommen = come · Sie = you (formal)',feedback:{c:'"Woher kommen Sie?" = Where do you come from? Woher always asks about origin.',w:'"Woher" means "from where" — it always asks about origin or source. Kommen = to come.'}},
+      {type:'translate',scene:'Circe must tell the guard she is from Greece. She answers.',question:'How does Circe say "I come from Greece"?',german:'',correct:'Ich komme aus Griechenland',hint:'Ich = I · komme = come · aus = from · Griechenland = Greece',feedback:{c:'"Ich komme aus Griechenland" — the guard nods respectfully. "Aus" is used with countries and cities.',w:'"Ich komme aus Griechenland." Ich=I, komme=come, aus=from (used with places), Griechenland=Greece.'}},
+      {type:'mc',scene:'Another traveller asks Circe her profession in conversation.',german:'„Was machen Sie beruflich?"',question:'What is the traveller asking?',options:['What is your hobby?','What do you do professionally?','Where do you work?','Do you like your job?'],correct:1,hint:'Was = What · machen = do · beruflich = professionally/for work',feedback:{c:'"Was machen Sie beruflich?" = What do you do for work? This is the professional way to ask.',w:'"Beruflich" means "professionally/for work". The phrase asks about your occupation.'}},
+    ]
+  }
+};
+
+// ── LESSON ENGINE ─────────────────────────────────────
+let currentLesson=null,currentLessonId=null,currentQ=0,lessonXP=0,hearts=3,answered=false,wordsPlaced=[],retrying=false;
+
+// ── PERSISTENCE (localStorage) ────────────────────────
+const SAVE_KEY='circe_quest_save';
+
+function saveProgress(){
+  const data={
+    xp:parseInt(document.getElementById('xp-count').textContent)||0,
+    streak:parseInt(document.getElementById('streak-count').textContent)||1,
+    completedLessons:completedLessons,
+    lastSeen:Date.now(),
+    lastLesson:currentLessonId,
+    lastQ:currentQ,
+    hearts:hearts
+  };
+  localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+}
+
+function loadProgress(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){return null}
+}
+
+function applySavedProgress(data){
+  if(!data)return;
+  document.getElementById('xp-count').textContent=data.xp||0;
+  document.getElementById('streak-count').textContent=data.streak||1;
+  document.getElementById('xp-bar-fill').style.width=Math.min((data.xp||0)/1000*100,100)+'%';
+  // Unlock completed lesson nodes
+  if(data.completedLessons){
+    completedLessons=data.completedLessons;
+    renderQuestNodes();
+  }
+}
+
+let completedLessons=[];
+
+function renderQuestNodes(){
+  // Mark done/active nodes based on completedLessons
+  const order=['greetings','numbers','introduce','directions','food','w1-test'];
+  document.querySelectorAll('.quest-node').forEach((node,i)=>{
+    const dot=node.querySelector('.node-dot');
+    const id=order[i];
+    if(!dot)return;
+    if(completedLessons.includes(id)){dot.className='node-dot done';dot.textContent='✓';}
+    else if(i===0||completedLessons.includes(order[i-1])){dot.className='node-dot active';dot.textContent=i+1;}
+    // locked stays locked
+  });
+}
+
+// ── GAME OVER SCREEN ──────────────────────────────────
+function showGameOver(){
+  // Create overlay if not exists
+  let ov=document.getElementById('game-over-overlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='game-over-overlay';
+    ov.style.cssText=`
+      position:fixed;inset:0;z-index:500;
+      background:rgba(7,8,16,0.96);
+      backdrop-filter:blur(20px);
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;padding:40px 24px;
+    `;
+    ov.innerHTML=`
+      <div style="font-size:4rem;margin-bottom:20px;animation:shake .5s ease both">💀</div>
+      <div style="font-family:var(--cinzel);font-size:1.8rem;font-weight:900;color:#fb7185;margin-bottom:12px;letter-spacing:0.04em">Circe Falls...</div>
+      <div style="font-family:var(--crimson);font-size:1.05rem;font-style:italic;color:var(--text2);max-width:420px;line-height:1.8;margin-bottom:32px">
+        "The darkness closes in. The path back to the surface is long, but the quest is not over. Rise again, sorceress — your prince still waits."
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-rose" onclick="restartLesson()" style="min-width:160px">🔄 Try Again</button>
+        <button class="btn btn-ghost" onclick="closeGameOver();showScreen('s-map')" style="min-width:160px">← Return to Map</button>
+      </div>
+    `;
+    // Add shake animation
+    const style=document.createElement('style');
+    style.textContent='@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(ov);
+  }
+  ov.style.display='flex';
+}
+
+function closeGameOver(){
+  const ov=document.getElementById('game-over-overlay');
+  if(ov)ov.style.display='none';
+}
+
+function restartLesson(){
+  closeGameOver();
+  loadLesson(currentLessonId);
+}
+
+// ── LOAD LESSON ───────────────────────────────────────
+function loadLesson(id){
+  currentLessonId=id;
+  currentLesson=lessons[id]||lessons['numbers'];
+  currentQ=0;lessonXP=0;hearts=3;answered=false;retrying=false;
+  document.getElementById('lesson-title-bar').textContent=currentLesson.title;
+  document.getElementById('lesson-hearts').textContent='❤️❤️❤️';
+  document.getElementById('lesson-xp-pill').textContent='+0 XP';
+  saveProgress();
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q=currentLesson.questions[currentQ];
+  if(!q){showVictory();return}
+  answered=false;retrying=false;wordsPlaced=[];
+  const total=currentLesson.questions.length;
+  document.getElementById('lesson-xp-fill').style.width=(currentQ/total*100)+'%';
+  document.getElementById('lesson-progress-label').textContent=`${currentQ} / ${total}`;
+  document.getElementById('scene-location').textContent=currentLesson.location;
+  document.getElementById('scene-text').innerHTML=q.scene+(q.german?` <strong>${q.german}</strong>`:'');
+  document.getElementById('q-type').textContent=q.type==='mc'?'🎯 Multiple Choice — Choose the correct answer':q.type==='translate'?'✍ Translation Challenge':'🧩 Build the Sentence';
+  document.getElementById('q-text').innerHTML=q.question+(q.german&&q.type!=='mc'?`<span class="question-german">${q.german}</span>`:'');
+  document.getElementById('feedback-banner').className='feedback-banner';
+  document.getElementById('hint-box').style.display='none';
+  document.getElementById('continue-btn').style.display='none';
+
+  if(q.type==='mc'){
+    document.getElementById('check-btn').style.display='none';
+    const letters=['A','B','C','D'];
+    document.getElementById('options-area').style.display='grid';
+    document.getElementById('options-area').innerHTML=q.options.map((o,i)=>
+      `<button class="option-btn" onclick="checkAnswer(this,${i==q.correct?'\'correct\'':'\'wrong\''})">
+        <span class="option-letter">${letters[i]}</span>${o}</button>`
+    ).join('');
+    const ia=document.getElementById('input-area');if(ia)ia.style.display='none';
+    const wa=document.getElementById('wordbank-area');if(wa)wa.style.display='none';
+  } else if(q.type==='translate'){
+    document.getElementById('options-area').style.display='none';
+    document.getElementById('check-btn').style.display='inline-flex';
+    let ia=document.getElementById('input-area');
+    if(!ia){ia=document.createElement('div');ia.id='input-area';ia.className='input-challenge';ia.innerHTML=`<input class="challenge-input" id="translate-input" placeholder="Type in German... z.B. Ich heiße..."><div class="input-hint">💡 Type your German answer above</div>`;document.querySelector('.lesson-body').insertBefore(ia,document.getElementById('feedback-banner'));}
+    ia.style.display='block';
+    const inp=document.getElementById('translate-input');
+    inp.value='';inp.style.borderColor='';
+    const wa=document.getElementById('wordbank-area');if(wa)wa.style.display='none';
+  } else if(q.type==='wordbank'){
+    document.getElementById('options-area').style.display='none';
+    document.getElementById('check-btn').style.display='inline-flex';
+    const ia=document.getElementById('input-area');if(ia)ia.style.display='none';
+    let wa=document.getElementById('wordbank-area');
+    if(!wa){wa=document.createElement('div');wa.id='wordbank-area';wa.className='word-bank';wa.innerHTML=`
+      <div class="word-bank-label">Your sentence (click words to place/remove)</div>
+      <div class="sentence-slots" id="sentence-slots"></div>
+      <div class="word-bank-label" style="margin-top:12px">Word bank</div>
+      <div class="word-chips" id="word-chips"></div>`;
+      document.querySelector('.lesson-body').insertBefore(wa,document.getElementById('feedback-banner'));}
+    wa.style.display='block';
+    const shuffled=[...q.words].sort(()=>Math.random()-.5);
+    document.getElementById('word-chips').innerHTML=shuffled.map(w=>`<div class="word-chip" onclick="placeWord(this,'${w}')">${w}</div>`).join('');
+    document.getElementById('sentence-slots').innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Click words from the bank to build the sentence...</div>';
+    wordsPlaced=[];
+  }
+}
+
+// ── ANSWER CHECKING WITH RETRY ─────────────────────────
+function checkAnswer(btn,result){
+  if(answered)return;
+  const q=currentLesson.questions[currentQ];
+
+  if(result==='correct'){
+    answered=true;
+    btn.classList.add('correct');
+    document.querySelectorAll('.option-btn').forEach(b=>b.style.pointerEvents='none');
+    showFeedback(true,q.feedback.c,'');
+    lessonXP+=retrying?10:15; // less XP on retry
+    document.getElementById('lesson-xp-pill').textContent='+'+lessonXP+' XP';
+    document.getElementById('continue-btn').style.display='inline-flex';
+    document.getElementById('check-btn').style.display='none';
+    saveProgress();
+  } else {
+    btn.classList.add('wrong');
+    hearts=Math.max(0,hearts-1);
+    updateHearts();
+
+    if(hearts===0){
+      // All hearts gone — game over after short delay
+      showFeedback(false,'',q.feedback.w,true);
+      document.getElementById('check-btn').style.display='none';
+      setTimeout(()=>showGameOver(),2000);
+    } else {
+      // Still has hearts — show retry message, re-enable options
+      retrying=true;
+      showRetryFeedback(hearts,q.feedback.w);
+      // Re-enable remaining buttons after delay
+      setTimeout(()=>{
+        document.querySelectorAll('.option-btn:not(.wrong)').forEach(b=>b.style.pointerEvents='auto');
+        document.getElementById('feedback-banner').className='feedback-banner';
+      },1800);
+    }
+  }
+}
+
+function checkTextAnswer(){
+  if(answered)return;
+  const q=currentLesson.questions[currentQ];
+  let userAns='';
+  if(q.type==='translate'){userAns=(document.getElementById('translate-input')?.value||'').trim();}
+  else if(q.type==='wordbank'){userAns=wordsPlaced.join(' ');}
+
+  const correct=userAns.toLowerCase()===q.correct.toLowerCase();
+
+  if(correct){
+    answered=true;
+    showFeedback(true,q.feedback.c,'');
+    lessonXP+=retrying?15:20;
+    document.getElementById('lesson-xp-pill').textContent='+'+lessonXP+' XP';
+    document.getElementById('continue-btn').style.display='inline-flex';
+    document.getElementById('check-btn').style.display='none';
+    saveProgress();
+  } else {
+    hearts=Math.max(0,hearts-1);
+    updateHearts();
+    if(q.type==='translate'){
+      const inp=document.getElementById('translate-input');
+      if(inp){inp.style.borderColor='rgba(251,113,133,0.5)';inp.focus();}
+    }
+    if(hearts===0){
+      showFeedback(false,'',q.feedback.w,true);
+      document.getElementById('check-btn').style.display='none';
+      setTimeout(()=>showGameOver(),2000);
+    } else {
+      retrying=true;
+      showRetryFeedback(hearts,q.feedback.w);
+      // Reset word bank for another try
+      if(q.type==='wordbank'){
+        wordsPlaced=[];
+        setTimeout(()=>{
+          const q2=currentLesson.questions[currentQ];
+          const shuffled=[...q2.words].sort(()=>Math.random()-.5);
+          document.getElementById('word-chips').innerHTML=shuffled.map(w=>`<div class="word-chip" onclick="placeWord(this,'${w}')">${w}</div>`).join('');
+          document.getElementById('sentence-slots').innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Try again...</div>';
+          document.getElementById('feedback-banner').className='feedback-banner';
+        },1800);
+      } else {
+        // Re-enable check button after delay
+        document.getElementById('check-btn').style.display='none';
+        setTimeout(()=>{
+          document.getElementById('check-btn').style.display='inline-flex';
+          document.getElementById('feedback-banner').className='feedback-banner';
+          if(q.type==='translate'){const inp=document.getElementById('translate-input');if(inp){inp.style.borderColor='';inp.value='';inp.focus();}}
+        },1800);
+      }
+    }
+  }
+}
+
+function updateHearts(){
+  document.getElementById('lesson-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
+}
+
+function showRetryFeedback(remainingHearts,wrongText){
+  const banner=document.getElementById('feedback-banner');
+  banner.className='feedback-banner show wrong-fb';
+  document.getElementById('fb-icon').textContent='💔';
+  document.getElementById('fb-title').className='fb-title w';
+  const heartMsg=remainingHearts===2?'One life lost! Two hearts remain — try again.':'⚠️ Last chance! One heart remains. Don\'t give up!';
+  document.getElementById('fb-title').textContent=heartMsg;
+  document.getElementById('fb-text').innerHTML=`<span style="color:var(--text3);font-size:0.88rem">Hint: </span>${wrongText.replace(/"/g,'<span class="german">').replace(/"/g,'</span>')}`;
+}
+
+function placeWord(el,word){
+  if(el.classList.contains('used'))return;
+  el.classList.add('used');
+  wordsPlaced.push(word);
+  const slots=document.getElementById('sentence-slots');
+  if(wordsPlaced.length===1)slots.innerHTML='';
+  const slot=document.createElement('div');
+  slot.className='sentence-slot';slot.textContent=word;
+  slot.onclick=()=>{
+    wordsPlaced=wordsPlaced.filter(w=>w!==word);
+    slot.remove();el.classList.remove('used');
+    if(wordsPlaced.length===0)slots.innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Click words from the bank...</div>';
+  };
+  slots.appendChild(slot);
+}
+
+function showFeedback(correct,cText,wText,gameOverPending=false){
+  const banner=document.getElementById('feedback-banner');
+  banner.className='feedback-banner show '+(correct?'correct-fb':'wrong-fb');
+  document.getElementById('fb-icon').textContent=correct?'⚡':gameOverPending?'💀':'💔';
+  document.getElementById('fb-title').className='fb-title '+(correct?'c':'w');
+  document.getElementById('fb-title').textContent=correct?'⚡ Circe advances!':gameOverPending?'All hearts lost — Circe falls!':'The path darkens...';
+  document.getElementById('fb-text').innerHTML=(correct?cText:wText).replace(/"/g,'<span class="german">').replace(/"/g,'</span>');
+}
+
+function showHint(){
+  const q=currentLesson.questions[currentQ];
+  const hb=document.getElementById('hint-box');
+  hb.style.display='block';
+  hb.textContent='💡 '+q.hint;
+  lessonXP=Math.max(0,lessonXP-5);
+}
+
+function nextQuestion(){
+  currentQ++;
+  loadQuestion();
+}
+
+function showVictory(){
+  // Mark lesson as completed
+  if(currentLessonId&&!completedLessons.includes(currentLessonId)){
+    completedLessons.push(currentLessonId);
+  }
+  // Add XP to total
+  const currentXP=parseInt(document.getElementById('xp-count').textContent)||0;
+  document.getElementById('xp-count').textContent=currentXP+lessonXP;
+  document.getElementById('xp-bar-fill').style.width=Math.min((currentXP+lessonXP)/1000*100,100)+'%';
+  // Save
+  saveProgress();
+  document.getElementById('v-xp').textContent='+'+lessonXP+' XP';
+  document.getElementById('v-acc').textContent=Math.round((1-((3-hearts)/3))*100)+'%';
+  document.getElementById('v-words').textContent=currentLesson.questions.length*2;
+  showScreen('s-victory');
+  renderQuestNodes();
+}
+
+// ── VOCABULARY DATA ───────────────────────────────────
+const vocab=[
+  {de:'Hallo',en:'Hello',ex:'Hallo! Wie geht es dir?',cat:'Greetings'},
+  {de:'Guten Morgen',en:'Good morning',ex:'Guten Morgen! Es ist schön heute.',cat:'Greetings'},
+  {de:'Guten Tag',en:'Good day/afternoon',ex:'Guten Tag! Was kann ich für Sie tun?',cat:'Greetings'},
+  {de:'Guten Abend',en:'Good evening',ex:'Guten Abend! Schönen Abend noch.',cat:'Greetings'},
+  {de:'Auf Wiedersehen',en:'Goodbye',ex:'Auf Wiedersehen! Bis morgen!',cat:'Greetings'},
+  {de:'Tschüss',en:'Bye (informal)',ex:'Tschüss! Mach\'s gut!',cat:'Greetings'},
+  {de:'Bitte',en:'Please / You\'re welcome',ex:'Ein Kaffee, bitte.',cat:'Essentials'},
+  {de:'Danke',en:'Thank you',ex:'Danke sehr! Das ist sehr nett.',cat:'Essentials'},
+  {de:'Entschuldigung',en:'Excuse me / Sorry',ex:'Entschuldigung, wo ist der Bahnhof?',cat:'Essentials'},
+  {de:'Ja / Nein',en:'Yes / No',ex:'Ja, ich verstehe. Nein, danke.',cat:'Essentials'},
+  {de:'Ich heiße',en:'My name is',ex:'Ich heiße Circe. Wie heißen Sie?',cat:'Introductions'},
+  {de:'Ich komme aus',en:'I come from',ex:'Ich komme aus Griechenland.',cat:'Introductions'},
+  {de:'Ich bin',en:'I am',ex:'Ich bin Designerin. Ich bin 25 Jahre alt.',cat:'Introductions'},
+  {de:'Wie geht es Ihnen?',en:'How are you? (formal)',ex:'Guten Tag! Wie geht es Ihnen?',cat:'Greetings'},
+  {de:'Es geht mir gut',en:'I am doing well',ex:'Danke, es geht mir gut.',cat:'Greetings'},
+  {de:'eins / zwei / drei',en:'one / two / three',ex:'Eins, zwei, drei — los!',cat:'Numbers'},
+  {de:'vier / fünf / sechs',en:'four / five / six',ex:'Ich brauche vier Euro.',cat:'Numbers'},
+  {de:'sieben / acht / neun',en:'seven / eight / nine',ex:'Acht Äpfel, bitte.',cat:'Numbers'},
+  {de:'zehn / zwanzig / dreißig',en:'ten / twenty / thirty',ex:'Das kostet dreißig Euro.',cat:'Numbers'},
+  {de:'Was kostet das?',en:'How much does this cost?',ex:'Entschuldigung, was kostet das?',cat:'Shopping'},
+  {de:'Wo ist...?',en:'Where is...?',ex:'Wo ist der Bahnhof, bitte?',cat:'Directions'},
+  {de:'Links / Rechts',en:'Left / Right',ex:'Gehen Sie links und dann rechts.',cat:'Directions'},
+  {de:'Geradeaus',en:'Straight ahead',ex:'Gehen Sie geradeaus, dann links.',cat:'Directions'},
+  {de:'Ich verstehe nicht',en:'I don\'t understand',ex:'Entschuldigung, ich verstehe nicht.',cat:'Essentials'},
+];
+
+let filteredVocab=[...vocab];
+function renderVocab(filter=''){
+  filteredVocab=filter?vocab.filter(v=>v.de.toLowerCase().includes(filter.toLowerCase())||v.en.toLowerCase().includes(filter.toLowerCase())||v.cat.toLowerCase().includes(filter.toLowerCase())):vocab;
+  document.getElementById('vocab-count').textContent=filteredVocab.length+' words';
+  document.getElementById('vocab-grid').innerHTML=filteredVocab.map(v=>`
+    <div class="vocab-card">
+      <div class="vocab-german">${v.de}</div>
+      <div class="vocab-english">${v.en}</div>
+      <div class="vocab-example">"${v.ex}"</div>
+      <div class="vocab-category">${v.cat}</div>
+    </div>`).join('');
+}
+function filterVocab(val){renderVocab(val)}
+
+// ── 30-DAY SCHEDULE DATA ─────────────────────────────
+const scheduleData=[
+  {week:1,days:[
+    {day:1,theme:'Hallo Deutschland! — Greetings',status:'done',sessions:[{icon:'🎭',name:'Story: City Gates',time:'40min'},{icon:'📖',name:'Vocab: 15 Greetings',time:'20min'},{icon:'🎯',name:'Practice: Role-play',time:'30min'},{icon:'✍',name:'Write: Introduce Circe',time:'30min'}]},
+    {day:2,theme:'Zahlen & Preise — Numbers',status:'today',sessions:[{icon:'🎭',name:'Story: The Market',time:'40min'},{icon:'📖',name:'Vocab: Numbers 1-100',time:'25min'},{icon:'🎯',name:'Quiz: Price challenges',time:'25min'},{icon:'🎮',name:'Game: Number race',time:'30min'}]},
+    {day:3,theme:'Ich bin Circe — Introductions',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Castle Gates',time:'35min'},{icon:'📖',name:'Grammar: sein/heißen',time:'30min'},{icon:'🎯',name:'Conversation: Introduce',time:'35min'},{icon:'✍',name:'Write: My profile',time:'20min'}]},
+    {day:4,theme:'Wo ist der Prinz? — Directions',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Village paths',time:'35min'},{icon:'📖',name:'Vocab: Directions',time:'20min'},{icon:'🎯',name:'Role-play: Give directions',time:'35min'},{icon:'🎮',name:'Mini-map navigation',time:'30min'}]},
+    {day:5,theme:'Im Restaurant — Food & Orders',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The Tavern',time:'40min'},{icon:'📖',name:'Vocab: Food & Drinks',time:'25min'},{icon:'🎯',name:'Role-play: Order meal',time:'25min'},{icon:'✍',name:'Write: Menu in German',time:'30min'}]},
+    {day:6,theme:'Review Day — Consolidation',status:'upcoming',sessions:[{icon:'🔄',name:'Flashcard review',time:'30min'},{icon:'🎯',name:'Mixed quiz: Week 1',time:'30min'},{icon:'🎭',name:'Full conversation practice',time:'40min'},{icon:'✍',name:'Journal: What Circe learned',time:'20min'}]},
+    {day:7,theme:'⚔ BOSS BATTLE: Tavern Master',status:'upcoming',sessions:[{icon:'⚔',name:'Boss Battle: Full test',time:'45min'},{icon:'📊',name:'Review mistakes',time:'30min'},{icon:'🏆',name:'Victory: Unlock Week 2',time:'15min'},{icon:'🎉',name:'Free practice',time:'30min'}]},
+  ]},
+  {week:2,days:[
+    {day:8,theme:'Der, Die, Das — The Article Riddle',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The Sphinx',time:'35min'},{icon:'📖',name:'Grammar: Articles + gender',time:'35min'},{icon:'🎯',name:'Practice: Sort nouns',time:'30min'},{icon:'✍',name:'Write: Article sentences',time:'20min'}]},
+    {day:9,theme:'Verben — Verb Conjugation',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The Dungeon',time:'35min'},{icon:'📖',name:'Grammar: sein, haben, werden',time:'35min'},{icon:'🎯',name:'Conjugation drills',time:'30min'},{icon:'🎮',name:'Verb battle game',time:'20min'}]},
+    {day:10,theme:'Shopping at the Markt',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Bavarian market',time:'40min'},{icon:'📖',name:'Vocab: Clothes & shopping',time:'25min'},{icon:'🎯',name:'Role-play: Buy things',time:'35min'},{icon:'✍',name:'Write: Shopping list',time:'20min'}]},
+    {day:11,theme:'Mein Haus — Home & Furniture',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The cottage',time:'35min'},{icon:'📖',name:'Vocab: Rooms & furniture',time:'25min'},{icon:'🎯',name:'Describe your home',time:'35min'},{icon:'✍',name:'Write: Home description',time:'25min'}]},
+    {day:12,theme:'Uhrzeiten — Telling Time',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The clock tower',time:'35min'},{icon:'📖',name:'Grammar: Time expressions',time:'30min'},{icon:'🎯',name:'Quiz: Time challenges',time:'30min'},{icon:'🎭',name:'Role-play: Make plans',time:'25min'}]},
+    {day:13,theme:'Review — Week 2 Consolidation',status:'upcoming',sessions:[{icon:'🔄',name:'Flashcard review',time:'30min'},{icon:'🎯',name:'Mixed quiz: Week 2',time:'35min'},{icon:'🎭',name:'Conversation practice',time:'35min'},{icon:'✍',name:'Grammar summary',time:'20min'}]},
+    {day:14,theme:'⚔ BOSS: The Grammar Sphinx',status:'upcoming',sessions:[{icon:'⚔',name:'Boss Battle: Grammar test',time:'50min'},{icon:'📊',name:'Review corrections',time:'30min'},{icon:'🏆',name:'Victory: Unlock Week 3',time:'15min'},{icon:'🎉',name:'Celebration practice',time:'25min'}]},
+  ]},
+  {week:3,days:[
+    {day:15,theme:'Am Bahnhof — At the Train Station',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The departure',time:'40min'},{icon:'📖',name:'Vocab: Travel & transport',time:'25min'},{icon:'🎯',name:'Role-play: Buy ticket',time:'35min'},{icon:'✍',name:'Write: Travel dialogue',time:'20min'}]},
+    {day:16,theme:'Über mich — Talking About Yourself',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Meet companion',time:'35min'},{icon:'📖',name:'Grammar: Present tense full',time:'30min'},{icon:'🎯',name:'Extended introduction',time:'35min'},{icon:'✍',name:'Write: My story in German',time:'20min'}]},
+    {day:17,theme:'Gesundheit — Health & Body',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The healer',time:'35min'},{icon:'📖',name:'Vocab: Body & ailments',time:'25min'},{icon:'🎯',name:'Role-play: At the doctor',time:'35min'},{icon:'✍',name:'Write: Health dialogue',time:'25min'}]},
+    {day:18,theme:'Wetter — Weather & Seasons',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The storm',time:'35min'},{icon:'📖',name:'Vocab: Weather expressions',time:'25min'},{icon:'🎯',name:'Describe the weather',time:'30min'},{icon:'🎮',name:'Weather forecast game',time:'30min'}]},
+    {day:19,theme:'Familie — Family & Relationships',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The village family',time:'35min'},{icon:'📖',name:'Vocab: Family members',time:'25min'},{icon:'🎯',name:'Describe Circe\'s family',time:'35min'},{icon:'✍',name:'Write: Family tree',time:'25min'}]},
+    {day:20,theme:'Review — Week 3 Consolidation',status:'upcoming',sessions:[{icon:'🔄',name:'Full flashcard review',time:'30min'},{icon:'🎯',name:'Mixed quiz: Weeks 1-3',time:'35min'},{icon:'🎭',name:'Extended conversation',time:'35min'},{icon:'✍',name:'Paragraph writing',time:'20min'}]},
+    {day:21,theme:'⚔ BOSS: The City Magistrate',status:'upcoming',sessions:[{icon:'⚔',name:'Boss: Full conversation',time:'50min'},{icon:'📊',name:'Error analysis',time:'25min'},{icon:'🏆',name:'Victory: Enter Week 4',time:'15min'},{icon:'📝',name:'B1 preview exercises',time:'30min'}]},
+  ]},
+  {week:4,days:[
+    {day:22,theme:'Meinungen — Expressing Opinions (B1)',status:'upcoming',sessions:[{icon:'🎭',name:'Story: The Council debate',time:'40min'},{icon:'📖',name:'Grammar: Modal verbs + opinions',time:'30min'},{icon:'🎯',name:'Debate: Agree/disagree',time:'30min'},{icon:'✍',name:'Write: Opinion paragraph',time:'20min'}]},
+    {day:23,theme:'Vergangenheit — Past Tense (Perfekt)',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Circe\'s journey so far',time:'35min'},{icon:'📖',name:'Grammar: Perfekt tense',time:'35min'},{icon:'🎯',name:'Retell past events',time:'30min'},{icon:'✍',name:'Write: Circe\'s diary entry',time:'20min'}]},
+    {day:24,theme:'Zukunft — Future Plans',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Planning the final quest',time:'35min'},{icon:'📖',name:'Grammar: Future expressions',time:'30min'},{icon:'🎯',name:'Plan Circe\'s future',time:'35min'},{icon:'✍',name:'Write: Future letter',time:'20min'}]},
+    {day:25,theme:'B1 Reading — Newspaper Challenge',status:'upcoming',sessions:[{icon:'📰',name:'Read: German news article',time:'40min'},{icon:'📖',name:'New B1 vocabulary from text',time:'25min'},{icon:'🎯',name:'Comprehension questions',time:'30min'},{icon:'✍',name:'Summary in German',time:'25min'}]},
+    {day:26,theme:'Schreiben — Letter Writing (B1)',status:'upcoming',sessions:[{icon:'🎭',name:'Story: Write to the prince',time:'35min'},{icon:'📖',name:'Grammar: Formal writing',time:'30min'},{icon:'✍',name:'Write: Formal letter (B1)',time:'40min'},{icon:'🔄',name:'Edit and correct',time:'15min'}]},
+    {day:27,theme:'B1 Mock Test — Practice Exam',status:'upcoming',sessions:[{icon:'📝',name:'Reading comprehension',time:'35min'},{icon:'✍',name:'Writing task (B1 format)',time:'35min'},{icon:'🎯',name:'Listening comprehension',time:'30min'},{icon:'📊',name:'Score analysis',time:'20min'}]},
+    {day:28,theme:'Review & Weak Spots',status:'upcoming',sessions:[{icon:'📊',name:'Identify weak areas',time:'30min'},{icon:'🔄',name:'Targeted revision',time:'40min'},{icon:'🎭',name:'Full conversation drill',time:'30min'},{icon:'✍',name:'Grammar summary sheet',time:'20min'}]},
+    {day:29,theme:'Final Preparation — Full Revision',status:'upcoming',sessions:[{icon:'🔄',name:'Complete vocabulary review',time:'35min'},{icon:'🎯',name:'Grammar — all rules',time:'30min'},{icon:'🎭',name:'Timed conversation (B1)',time:'30min'},{icon:'✍',name:'Final writing practice',time:'25min'}]},
+    {day:30,theme:'👑 FINAL BOSS: Gate of Deutschland',status:'upcoming',sessions:[{icon:'👑',name:'Final Boss: Full B1 Test',time:'60min'},{icon:'🏆',name:'Victory ceremony',time:'15min'},{icon:'🎭',name:'Full free conversation',time:'30min'},{icon:'🎉',name:'Celebration: You made it!',time:'15min'}]},
+  ]},
+];
+
+function renderSchedule(){
+  const body=document.getElementById('sched-body');
+  body.innerHTML=scheduleData.map(week=>`
+    <div style="font-family:var(--cinzel);font-size:0.72rem;color:var(--purple2);letter-spacing:0.14em;text-transform:uppercase;margin:24px 0 12px;display:flex;align-items:center;gap:10px">
+      <span style="flex:1;height:1px;background:var(--border)"></span>
+      Week ${week.week}
+      <span style="flex:1;height:1px;background:var(--border)"></span>
+    </div>
+    ${week.days.map(d=>`
+      <div class="day-block">
+        <div class="day-header">
+          <div>
+            <div class="day-num">// Day ${d.day}</div>
+            <div class="day-theme">${d.theme}</div>
+          </div>
+          <div class="day-status status-${d.status}">${d.status==='done'?'✓ Done':d.status==='today'?'⚡ Today':'Upcoming'}</div>
+        </div>
+        <div class="day-sessions">
+          ${d.sessions.map(s=>`
+            <div class="session-pill">
+              <span class="session-icon">${s.icon}</span>
+              <span>${s.name}</span>
+              <span class="session-time">· ${s.time}</span>
+            </div>`).join('')}
+        </div>
+      </div>`).join('')}
+  `).join('');
+}
+
+// ── CONFETTI ──────────────────────────────────────────
+function launchConfetti(){
+  const area=document.getElementById('confetti-area');
+  area.innerHTML='';
+  const colors=['#c9a84c','#f0c96e','#a855f7','#7c3aed','#2dd4bf','#ffffff'];
+  for(let i=0;i<80;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;
+      animation:confettiFall ${Math.random()*2+1.5}s ${Math.random()*0.5}s ease-in both;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+    `;
+    area.appendChild(p);
+  }
+  setTimeout(()=>area.innerHTML='',4000);
+}
+
+// ══════════════════════════════════════════════════════
+// SOUND ENGINE
+// ══════════════════════════════════════════════════════
+let soundEnabled=true;
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+
+function getACtx(){if(!actx)actx=new AudioCtx();return actx}
+
+function playTone(freq,dur,type='sine',vol=0.15,delay=0){
+  try{
+    const ctx=getACtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type=type;osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0,ctx.currentTime+delay);
+    gain.gain.linearRampToValueAtTime(vol,ctx.currentTime+delay+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+dur);
+    osc.start(ctx.currentTime+delay);
+    osc.stop(ctx.currentTime+delay+dur+0.05);
+  }catch(e){}
+}
+
+const SFX={
+  correct(){
+    if(!soundEnabled)return;
+    playTone(523,0.12,'sine',0.2);
+    playTone(659,0.12,'sine',0.2,0.1);
+    playTone(784,0.2,'sine',0.22,0.22);
+    playTone(1047,0.3,'sine',0.18,0.38);
+  },
+  wrong(){
+    if(!soundEnabled)return;
+    playTone(330,0.1,'sawtooth',0.12);
+    playTone(220,0.25,'sawtooth',0.14,0.12);
+  },
+  heartLost(){
+    if(!soundEnabled)return;
+    playTone(440,0.08,'sine',0.15);
+    playTone(349,0.08,'sine',0.15,0.1);
+    playTone(294,0.3,'sine',0.18,0.2);
+  },
+  gameOver(){
+    if(!soundEnabled)return;
+    [440,392,349,294,261].forEach((f,i)=>playTone(f,0.18,'sawtooth',0.18,i*0.14));
+  },
+  victory(){
+    if(!soundEnabled)return;
+    const melody=[523,659,784,1047,784,1047,1319];
+    melody.forEach((f,i)=>playTone(f,0.18,'sine',0.22,i*0.13));
+  },
+  click(){
+    if(!soundEnabled)return;
+    playTone(800,0.06,'sine',0.08);
+  },
+  levelUp(){
+    if(!soundEnabled)return;
+    [392,494,587,784].forEach((f,i)=>playTone(f,0.15,'sine',0.2,i*0.1));
+  },
+  mic(){
+    if(!soundEnabled)return;
+    playTone(660,0.08,'sine',0.1);
+    playTone(880,0.12,'sine',0.12,0.1);
+  },
+  ambient(){
+    if(!soundEnabled)return;
+    // Subtle ambient hum on screen transitions
+    playTone(110,1.5,'sine',0.04);
+    playTone(220,1.5,'sine',0.02);
+  }
+};
+
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  const btn=document.getElementById('sound-toggle');
+  btn.textContent=soundEnabled?'🔊':'🔇';
+  btn.classList.toggle('muted',!soundEnabled);
+  if(soundEnabled)SFX.click();
+}
+
+// ══════════════════════════════════════════════════════
+// TEXT-TO-SPEECH (German pronunciation)
+// ══════════════════════════════════════════════════════
+let currentTTSUtterance=null;
+let lastNPCText='';
+
+function speakGerman(text,rate=0.9,pitch=1.1){
+  if(!soundEnabled)return;
+  window.speechSynthesis.cancel();
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang='de-DE';utter.rate=rate;utter.pitch=pitch;
+  // Pick a German voice if available
+  const voices=window.speechSynthesis.getVoices();
+  const deVoice=voices.find(v=>v.lang.startsWith('de'))|| voices[0];
+  if(deVoice)utter.voice=deVoice;
+  currentTTSUtterance=utter;
+  window.speechSynthesis.speak(utter);
+}
+
+function speakQuestionText(){
+  const q=currentLesson?.questions[currentQ];
+  if(!q||!q.german)return;
+  // Strip quotes/special chars for TTS
+  const clean=q.german.replace(/[„"]/g,'');
+  speakGerman(clean);
+}
+
+function replayLastNPC(){
+  if(lastNPCText)speakGerman(lastNPCText,0.85,1.05);
+}
+
+// Auto-speak the German phrase when a question loads
+function autoSpeak(text){
+  if(!soundEnabled||!text)return;
+  setTimeout(()=>speakGerman(text),600);
+}
+
+// ══════════════════════════════════════════════════════
+// INPUT MODE (Type / Speak)
+// ══════════════════════════════════════════════════════
+let inputMode='type'; // 'type' or 'speak'
+let isListening=false;
+let recognition=null;
+
+function setInputMode(mode){
+  inputMode=mode;
+  document.getElementById('mode-type-btn').classList.toggle('active',mode==='type');
+  document.getElementById('mode-speak-btn').classList.toggle('active',mode==='speak');
+
+  const voicePanel=document.getElementById('voice-panel');
+  const inputArea=document.getElementById('input-area');
+
+  if(mode==='speak'){
+    voicePanel.classList.add('show');
+    if(inputArea)inputArea.style.display='none';
+    SFX.mic();
+  } else {
+    voicePanel.classList.remove('show');
+    stopListening();
+    if(inputArea)inputArea.style.display='block';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SPEECH RECOGNITION
+// ══════════════════════════════════════════════════════
+function toggleMic(){
+  if(isListening){stopListening();}
+  else{startListening();}
+}
+
+function startListening(){
+  const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRec){
+    alert('Speech recognition is not supported in your browser. Please use Chrome.');
+    return;
+  }
+  recognition=new SpeechRec();
+  recognition.lang='de-DE';
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  recognition.maxAlternatives=3;
+
+  recognition.onstart=()=>{
+    isListening=true;
+    const micBtn=document.getElementById('mic-btn');
+    const status=document.getElementById('mic-status');
+    const waveform=document.getElementById('waveform');
+    micBtn.classList.add('listening');
+    micBtn.textContent='⏹';
+    status.textContent='Listening... Speak in German';
+    status.className='mic-status listening';
+    waveform.classList.add('listening');
+    SFX.mic();
+  };
+
+  recognition.onresult=(e)=>{
+    const transcript=Array.from(e.results)
+      .map(r=>r[0].transcript).join('');
+    document.getElementById('voice-transcript').textContent='"'+transcript+'"';
+
+    if(e.results[0].isFinal){
+      document.getElementById('mic-status').textContent='Processing...';
+      document.getElementById('mic-status').className='mic-status processing';
+      handleVoiceAnswer(transcript,e.results[0][0].confidence);
+    }
+  };
+
+  recognition.onerror=(e)=>{
+    stopListening();
+    document.getElementById('mic-status').textContent='Could not hear — tap to try again';
+    document.getElementById('mic-status').className='mic-status';
+  };
+
+  recognition.onend=()=>stopListening();
+  recognition.start();
+}
+
+function stopListening(){
+  if(recognition)try{recognition.stop()}catch(e){}
+  isListening=false;
+  const micBtn=document.getElementById('mic-btn');
+  const status=document.getElementById('mic-status');
+  const waveform=document.getElementById('waveform');
+  if(micBtn){micBtn.classList.remove('listening');micBtn.textContent='🎙'}
+  if(status){status.textContent='Tap to speak in German';status.className='mic-status'}
+  if(waveform)waveform.classList.remove('listening');
+}
+
+function handleVoiceAnswer(transcript,confidence){
+  stopListening();
+  const q=currentLesson?.questions[currentQ];
+  if(!q)return;
+
+  // For MC questions — try to match option text
+  if(q.type==='mc'){
+    const spoken=transcript.toLowerCase();
+    const match=q.options.findIndex(o=>spoken.includes(o.toLowerCase().split(' ')[0]));
+    const isCorrect=match===q.correct;
+    document.getElementById('voice-transcript').textContent='"'+transcript+'" ← heard';
+    const fakebtn=document.createElement('button');
+    fakebtn.className='option-btn';
+    checkAnswer(fakebtn,isCorrect?'correct':'wrong',transcript);
+    return;
+  }
+
+  // For translate/wordbank — fuzzy match
+  const correctAns=(q.correct||'').toLowerCase().trim();
+  const spokenClean=transcript.toLowerCase().trim();
+  const similarity=strSimilarity(spokenClean,correctAns);
+  const isCorrect=similarity>0.65||spokenClean.includes(correctAns)||correctAns.includes(spokenClean);
+
+  document.getElementById('voice-transcript').textContent='"'+transcript+'" — '+Math.round(similarity*100)+'% match';
+
+  if(q.type==='translate'){
+    const inp=document.getElementById('translate-input');
+    if(inp)inp.value=transcript;
+  }
+
+  setTimeout(()=>{
+    if(isCorrect){
+      answered=true;
+      showFeedback(true,q.feedback.c,'');
+      lessonXP+=retrying?12:18;
+      document.getElementById('lesson-xp-pill').textContent='+'+lessonXP+' XP';
+      document.getElementById('continue-btn').style.display='inline-flex';
+      document.getElementById('check-btn').style.display='none';
+      SFX.correct();
+      saveProgress();
+    } else {
+      hearts=Math.max(0,hearts-1);
+      updateHearts();
+      SFX.heartLost();
+      if(hearts===0){
+        showFeedback(false,'',q.feedback.w,true);
+        SFX.gameOver();
+        setTimeout(()=>showGameOver(),2000);
+      } else {
+        retrying=true;
+        showRetryFeedback(hearts,q.feedback.w);
+        setTimeout(()=>{
+          document.getElementById('feedback-banner').className='feedback-banner';
+          document.getElementById('voice-transcript').textContent='';
+        },2000);
+      }
+    }
+  },500);
+}
+
+// Simple string similarity (Dice coefficient)
+function strSimilarity(a,b){
+  if(a===b)return 1;
+  if(a.length<2||b.length<2)return 0;
+  const getBigrams=s=>{const bg=new Map();for(let i=0;i<s.length-1;i++){const bg2=s.substr(i,2);bg.set(bg2,(bg.get(bg2)||0)+1);}return bg};
+  const aB=getBigrams(a),bB=getBigrams(b);
+  let intersection=0;
+  for(const[k,v] of aB){if(bB.has(k))intersection+=Math.min(v,bB.get(k));}
+  return(2*intersection)/(a.length+b.length-2);
+}
+
+// ══════════════════════════════════════════════════════
+// AI CONVERSATION ENGINE (Claude API)
+// ══════════════════════════════════════════════════════
+let convoHistory=[];
+let currentNPCPersona='';
+let convoActive=false;
+
+const npcPersonas={
+  greetings:{name:'Klaus the Innkeeper',avatar:'🍺',role:'Innkeeper at The Tavern of Tongues',lang:'A1',system:`You are Klaus, a friendly but gruff Bavarian innkeeper in a fantasy German tavern. Speak ONLY in simple A1-level German. Keep sentences SHORT (5-8 words max). Always greet customers with "Guten Morgen/Tag/Abend!". Ask simple questions like name, where they're from, what they want to eat/drink. If the user speaks German (even broken), respond warmly and encourage them. If they speak English, reply in German but add a translation in brackets. Context: Circe the sorceress is your customer on a magical quest to learn German. Be patient and encouraging. NEVER speak more than 2 short sentences per turn.`},
+  numbers:{name:'Helga the Merchant',avatar:'🛒',role:'Market Merchant · Bavarian Market',lang:'A1',system:`You are Helga, a cheerful market merchant in a magical Bavarian market. Speak ONLY in simple A1-level German about prices, numbers, and shopping. Ask things like "Was möchten Sie kaufen?" "Das kostet X Euro." "Haben Sie Wechselgeld?". Use numbers 1-100. If user answers in German, confirm enthusiastically. If wrong German, gently correct with: "Fast! Man sagt: [correct phrase]". NEVER more than 2 short sentences. Context: Circe needs to buy supplies for her quest using German.`},
+  introduce:{name:'Captain Friedrich',avatar:'⚔',role:'Castle Guard Captain',lang:'A1-A2',system:`You are Captain Friedrich, a stern but fair castle guard who speaks formal German. Ask for identification: name, origin, purpose of visit. Use formal "Sie" not "du". Phrases: "Wie heißen Sie?", "Woher kommen Sie?", "Was ist Ihr Beruf?", "Was wollen Sie hier?". If user answers correctly in German, let them pass: "Gut! Sie dürfen eintreten." If wrong, ask again: "Entschuldigung? Bitte wiederholen Sie." Context: Circe must prove she can speak German to enter the castle.`},
+};
+
+async function startAIConversation(lessonId){
+  const persona=npcPersonas[lessonId]||npcPersonas['greetings'];
+  currentNPCPersona=persona;
+  convoHistory=[];
+  convoActive=true;
+
+  const panel=document.getElementById('ai-convo-panel');
+  panel.classList.add('open');
+  document.getElementById('convo-messages').innerHTML='';
+
+  // Opening NPC line
+  const openings={
+    greetings:'Guten Tag! Willkommen in meiner Taverne! Wie heißen Sie?',
+    numbers:'Hallo! Was möchten Sie kaufen? Wir haben viele schöne Waren!',
+    introduce:'Halt! Wer sind Sie? Zeigen Sie mir Ihre Identität, bitte!'
+  };
+  const opening=openings[lessonId]||openings['greetings'];
+  addConvoMessage('npc',opening,persona);
+  lastNPCText=opening;
+  if(soundEnabled)setTimeout(()=>speakGerman(opening,0.85),500);
+  SFX.ambient();
+}
+
+async function sendConvoMessage(userText){
+  if(!convoActive||!userText.trim())return;
+
+  addConvoMessage('user',userText);
+  convoHistory.push({role:'user',content:userText});
+
+  // Show typing indicator
+  const typingId='typing-'+Date.now();
+  addTypingIndicator(typingId);
+
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:200,
+        system:currentNPCPersona.system+`\n\nAlso after your German reply, on a NEW LINE starting with "SCORE:", rate the user's last German response: SCORE:good/ok/bad and one SHORT tip in English if bad/ok.`,
+        messages:convoHistory
+      })
+    });
+
+    const data=await response.json();
+    removeTypingIndicator(typingId);
+
+    if(data.content&&data.content[0]){
+      const full=data.content[0].text;
+      const parts=full.split('\nSCORE:');
+      const npcReply=parts[0].trim();
+      const scoreRaw=parts[1]?.trim()||'';
+      const scoreLine=scoreRaw.split('\n')[0].toLowerCase();
+      const scoreType=scoreLine.startsWith('good')?'good':scoreLine.startsWith('ok')?'ok':scoreLine.startsWith('bad')?'bad':'';
+      const tip=scoreRaw.split('\n').slice(1).join(' ').trim();
+
+      convoHistory.push({role:'assistant',content:npcReply});
+      lastNPCText=npcReply;
+
+      addConvoMessage('npc',npcReply,currentNPCPersona,scoreType,tip);
+      if(soundEnabled)setTimeout(()=>speakGerman(npcReply.replace(/\[.*?\]/g,''),0.85),300);
+
+      if(scoreType==='good')SFX.correct();
+      else if(scoreType==='bad')SFX.wrong();
+    }
+  }catch(e){
+    removeTypingIndicator(typingId);
+    addConvoMessage('npc','[Connection lost... try again]',currentNPCPersona);
+  }
+}
+
+function addConvoMessage(type,text,persona,score='',tip=''){
+  const msgs=document.getElementById('convo-messages');
+  const div=document.createElement('div');
+  div.className='msg '+(type==='user'?'user':'');
+
+  const scoreHTML=score?`<div><span class="msg-score score-${score}">${score==='good'?'✓ Gut!':score==='ok'?'~ Fast!':'✗ Nochmal'}</span>${tip?`<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-left:8px">${tip}</span>`:''}</div>`:'';
+
+  div.innerHTML=`
+    <div class="msg-av">${type==='user'?'🧙‍♀️':(persona?.avatar||'🗣')}</div>
+    <div>
+      <div class="msg-bubble ${type==='user'?'user-b':'npc'}">${text}</div>
+      ${type==='user'?scoreHTML:''}
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addTypingIndicator(id){
+  const msgs=document.getElementById('convo-messages');
+  const div=document.createElement('div');
+  div.className='msg';div.id=id;
+  div.innerHTML=`<div class="msg-av">${currentNPCPersona?.avatar||'🗣'}</div><div class="msg-bubble npc ai-thinking"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function removeTypingIndicator(id){
+  const el=document.getElementById(id);if(el)el.remove();
+}
+
+// Quick-send for conversation input
+function sendConvoInput(){
+  const inp=document.getElementById('convo-input');
+  if(!inp||!inp.value.trim())return;
+  sendConvoMessage(inp.value.trim());
+  inp.value='';
+}
+
+// ══════════════════════════════════════════════════════
+// WIRE SOUNDS INTO EXISTING FUNCTIONS
+// ══════════════════════════════════════════════════════
+
+// Patch showFeedback to play sounds
+const _origShowFeedback=showFeedback;
+showFeedback=function(correct,cText,wText,gameOverPending=false){
+  _origShowFeedback(correct,cText,wText,gameOverPending);
+  if(correct)SFX.correct();
+  else if(gameOverPending)SFX.gameOver();
+  else SFX.heartLost();
+};
+
+// Patch showVictory to play victory sound
+const _origShowVictory=showVictory;
+showVictory=function(){
+  _origShowVictory();
+  SFX.victory();
+};
+
+// Patch showGameOver
+const _origGameOver=showGameOver;
+showGameOver=function(){
+  _origGameOver();
+  SFX.gameOver();
+};
+
+// Patch loadQuestion to add TTS + mode bar + convo
+const _origLoadQ=loadQuestion;
+loadQuestion=function(){
+  _origLoadQ();
+  const q=currentLesson?.questions[currentQ];
+  if(!q)return;
+
+  // Show input mode bar for translate/wordbank
+  const modeBar=document.getElementById('input-mode-bar');
+  if(modeBar)modeBar.style.display=(q.type==='translate'||q.type==='wordbank')?'flex':'none';
+
+  // Reset voice panel
+  setInputMode('type');
+  document.getElementById('voice-transcript').textContent='';
+
+  // Auto-speak German text
+  if(q.german)autoSpeak(q.german.replace(/[„"«»]/g,''));
+
+  // Start AI conversation for convo-type questions
+  if(q.type==='convo'&&currentLessonId){
+    startAIConversation(currentLessonId);
+  } else {
+    const panel=document.getElementById('ai-convo-panel');
+    if(panel)panel.classList.remove('open');
+    convoActive=false;
+  }
+};
+
+// Patch loadLesson to show AI convo option in scene
+const _origLoadLesson=loadLesson;
+loadLesson=function(id){
+  _origLoadLesson(id);
+  // Add convo panel conversation input if not exists
+  if(!document.getElementById('convo-input-row')){
+    const row=document.createElement('div');
+    row.id='convo-input-row';
+    row.style.cssText='display:none;gap:8px;margin-top:10px;padding:0 16px 10px';
+    row.innerHTML=`
+      <input id="convo-input" placeholder="Antworten Sie auf Deutsch... (Answer in German)" style="flex:1;background:rgba(13,15,30,0.8);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--crimson);font-size:0.95rem;outline:none;caret-color:var(--gold)" onkeydown="if(event.key==='Enter')sendConvoInput()">
+      <button onclick="sendConvoInput()" class="btn btn-teal" style="padding:10px 18px;flex-shrink:0;font-size:0.75rem">Send</button>
+      <button onclick="if(inputMode==='speak')toggleMic();else setInputMode('speak')" class="btn btn-purple" style="padding:10px 14px;flex-shrink:0;font-size:0.9rem" title="Speak your answer">🎙</button>
+    `;
+    const panel=document.getElementById('ai-convo-panel');
+    if(panel&&panel.parentNode)panel.parentNode.insertBefore(row,panel.nextSibling);
+  }
+};
+
+// Show convo input when AI panel is open
+const _origStartConvo=startAIConversation;
+startAIConversation=async function(id){
+  await _origStartConvo(id);
+  const row=document.getElementById('convo-input-row');
+  if(row)row.style.display='flex';
+};
+
+// Patch showScreen to play click sound + hide convo row
+const _origShowScreen=showScreen;
+showScreen=function(id,lessonId){
+  SFX.click();
+  _origShowScreen(id,lessonId);
+  const row=document.getElementById('convo-input-row');
+  if(row&&id!=='s-lesson')row.style.display='none';
+};
+
+// Load voices for TTS
+window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+window.addEventListener('load',()=>{
+  renderVocab();
+  renderSchedule();
+
+  // Restore saved progress
+  const saved=loadProgress();
+  if(saved){
+    applySavedProgress(saved);
+
+    // Show welcome-back banner if returning user (>5 min gap)
+    const timeSince=Date.now()-(saved.lastSeen||0);
+    if(timeSince>5*60*1000&&saved.lastLesson){
+      showWelcomeBack(saved);
+    }
+  }
+});
+
+function showWelcomeBack(saved){
+  // Create welcome back overlay
+  const ov=document.createElement('div');
+  ov.id='welcome-back-overlay';
+  ov.style.cssText=`
+    position:fixed;inset:0;z-index:400;
+    background:rgba(7,8,16,0.92);backdrop-filter:blur(20px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:40px 24px;
+  `;
+
+  const lessonNames={
+    greetings:'Day 1 — Hallo! Greetings',
+    numbers:'Day 2 — Zahlen & Preise',
+    introduce:'Day 3 — Ich bin Circe',
+    directions:'Day 4 — Directions',
+    food:'Day 5 — Im Restaurant'
+  };
+  const lastLessonName=lessonNames[saved.lastLesson]||saved.lastLesson;
+  const hours=Math.floor((Date.now()-saved.lastSeen)/(1000*60*60));
+  const timeAgo=hours<1?'a short while ago':hours===1?'1 hour ago':`${hours} hours ago`;
+
+  ov.innerHTML=`
+    <div style="font-size:3.5rem;margin-bottom:20px">🔮</div>
+    <div style="font-family:var(--cinzel);font-size:1.5rem;font-weight:700;color:var(--gold);margin-bottom:10px;letter-spacing:0.04em">Welcome Back, Circe!</div>
+    <div style="font-family:var(--crimson);font-size:1rem;font-style:italic;color:var(--text2);max-width:420px;line-height:1.85;margin-bottom:12px">
+      "The stars remember your quest. You were last seen <strong style="color:var(--gold2)">${timeAgo}</strong>."
+    </div>
+    <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:16px 24px;margin-bottom:28px;font-family:var(--mono);font-size:0.72rem;color:var(--gold);letter-spacing:0.08em">
+      <div style="margin-bottom:6px">📍 Last quest: ${lastLessonName}</div>
+      <div style="margin-bottom:6px">⭐ Total XP: ${saved.xp||0}</div>
+      <div>🔥 Streak: ${saved.streak||1} days</div>
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-gold" onclick="resumeProgress('${saved.lastLesson}')">⚡ Resume Quest</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('welcome-back-overlay').remove()">Start from Map</button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+}
+
+function resumeProgress(lessonId){
+  const ov=document.getElementById('welcome-back-overlay');
+  if(ov)ov.remove();
+  showScreen('s-lesson',lessonId);
+}
+</script>
+</body>
+</html>
