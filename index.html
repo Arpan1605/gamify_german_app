@@ -1071,7 +1071,7 @@ const lessons={
       {type:'mc',scene:'A guard at the city gate looks at Circe and says something. She needs to understand if it is a greeting or a threat...',german:'„Guten Morgen! Wie heißen Sie?"',question:'What is the guard asking?',options:['Good evening! Where are you from?','Good morning! What is your name?','Good day! What do you want?','Good night! Are you lost?'],correct:1,hint:'Morgen = Morning. Heißen = to be called/named.',feedback:{c:'Excellent! "Guten Morgen" = Good morning. "Wie heißen Sie?" = What is your name? (formal)',w:'Close, but not right. "Morgen" means morning, and "heißen" means "to be called". So "Wie heißen Sie?" asks for your name.'}},
       {type:'translate',scene:'The guard nods and asks Circe to introduce herself. She must respond in German.',question:'How does Circe say "My name is Circe" in German?',german:'',correct:'Ich heiße Circe',hint:'Ich = I · heiße = am called · Circe = Circe',feedback:{c:'"Ich heiße Circe" — perfect! You can also say "Mein Name ist Circe" (My name is Circe).',w:'"Ich heiße Circe" — try again. Ich = I, heiße = am called.'}},
       {type:'mc',scene:'A friendly merchant approaches and greets Circe warmly in the afternoon.',german:'„Guten Tag! Wie geht es Ihnen?"',question:'What is the merchant asking?',options:['Good morning! Are you well?','Good night! How are you?','Good day! How are you? (formal)','Good evening! Where do you come from?'],correct:2,hint:'"Tag" = day/afternoon. "Wie geht es Ihnen?" = How are you? (formal)',feedback:{c:'Perfect! "Guten Tag" = Good day/afternoon. "Wie geht es Ihnen?" = How are you? (formal polite form)',w:'"Tag" means day/afternoon, not morning or evening. And "Wie geht es Ihnen?" is the formal way of asking how someone is.'}},
-      {type:'wordbank',scene:'Circe wants to tell the merchant she is doing well. Build her response!',question:'Build the sentence: "Thank you, I am doing well."',words:['Danke,','es','mir','geht','gut.'],correct:['Danke,','es','geht','mir','gut.'],hint:'"Danke" = Thank you · "Es geht mir gut" = I am doing well',feedback:{c:'"Danke, es geht mir gut!" — This is the perfect natural response. Remember this phrase!',w:'The correct order is: Danke, es geht mir gut. — In German, the verb often comes second.'}},
+      {type:'wordbank',scene:'Circe wants to tell the merchant she is doing well. Build her response!',question:'Build the sentence: "Thank you, I am doing well."',words:['Danke,','es','mir','geht','gut.'],correct:['Danke,','es','geht','mir','gut.'],hint:'"Danke" = Thank you · "Es geht mir gut" = I am doing well',feedback:{c:'"Danke, es geht mir gut!" — This is the perfect natural response. Remember this phrase!',w:'The correct order is: Danke, es geht mir gut. — In German, the verb (geht) often comes second in the sentence.'}},
     ]
   },
   numbers:{
@@ -1245,17 +1245,25 @@ function loadQuestion(){
   } else if(q.type==='wordbank'){
     document.getElementById('options-area').style.display='none';
     document.getElementById('check-btn').style.display='inline-flex';
+    // Always hide translate input for wordbank
     const ia=document.getElementById('input-area');if(ia)ia.style.display='none';
+    // Also hide input mode bar's translate input directly
+    const ti=document.getElementById('translate-input');if(ti)ti.value='';
     let wa=document.getElementById('wordbank-area');
-    if(!wa){wa=document.createElement('div');wa.id='wordbank-area';wa.className='word-bank';wa.innerHTML=`
-      <div class="word-bank-label">Your sentence (click words to place/remove)</div>
-      <div class="sentence-slots" id="sentence-slots"></div>
-      <div class="word-bank-label" style="margin-top:12px">Word bank</div>
-      <div class="word-chips" id="word-chips"></div>`;
-      document.querySelector('.lesson-body').insertBefore(wa,document.getElementById('feedback-banner'));}
+    if(!wa){
+      wa=document.createElement('div');wa.id='wordbank-area';wa.className='word-bank';
+      wa.innerHTML=`
+        <div class="word-bank-label">Your sentence (click words to place/remove)</div>
+        <div class="sentence-slots" id="sentence-slots"></div>
+        <div class="word-bank-label" style="margin-top:12px">Word bank</div>
+        <div class="word-chips" id="word-chips"></div>`;
+      document.querySelector('.lesson-body').insertBefore(wa,document.getElementById('feedback-banner'));
+    }
     wa.style.display='block';
     const shuffled=[...q.words].sort(()=>Math.random()-.5);
-    document.getElementById('word-chips').innerHTML=shuffled.map(w=>`<div class="word-chip" onclick="placeWord(this,'${w}')">${w}</div>`).join('');
+    document.getElementById('word-chips').innerHTML=shuffled.map(w=>
+      `<div class="word-chip" onclick="placeWord(this,'${w}')">${w}</div>`
+    ).join('');
     document.getElementById('sentence-slots').innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Click words from the bank to build the sentence...</div>';
     wordsPlaced=[];
   }
@@ -1303,10 +1311,28 @@ function checkTextAnswer(){
   if(answered)return;
   const q=currentLesson.questions[currentQ];
   let userAns='';
-  if(q.type==='translate'){userAns=(document.getElementById('translate-input')?.value||'').trim();}
-  else if(q.type==='wordbank'){userAns=wordsPlaced.join(' ');}
+  let correct=false;
 
-  const correct=userAns.toLowerCase()===q.correct.toLowerCase();
+  if(q.type==='translate'){
+    userAns=(document.getElementById('translate-input')?.value||'').trim();
+    // Flexible comparison — strip trailing punctuation, lowercase, trim spaces
+    const normalise=s=>s.toLowerCase().trim().replace(/[.!?,]/g,'').replace(/\s+/g,' ');
+    correct=normalise(userAns)===normalise(q.correct);
+  } else if(q.type==='wordbank'){
+    // Compare placed words array to correct array element-by-element
+    if(wordsPlaced.length===0){
+      // Nothing placed — flash the slot area and return without penalising
+      const slots=document.getElementById('sentence-slots');
+      if(slots){slots.style.borderColor='rgba(251,113,133,0.4)';setTimeout(()=>slots.style.borderColor='',1000);}
+      return;
+    }
+    const correctArr=Array.isArray(q.correct)?q.correct:q.correct.split(' ');
+    // Normalise each word for comparison
+    const norm=s=>s.toLowerCase().replace(/[.!?,]/g,'').trim();
+    const placedNorm=wordsPlaced.map(norm);
+    const correctNorm=correctArr.map(norm);
+    correct=placedNorm.length===correctNorm.length&&placedNorm.every((w,i)=>w===correctNorm[i]);
+  }
 
   if(correct){
     answered=true;
@@ -1330,18 +1356,18 @@ function checkTextAnswer(){
     } else {
       retrying=true;
       showRetryFeedback(hearts,q.feedback.w);
-      // Reset word bank for another try
       if(q.type==='wordbank'){
         wordsPlaced=[];
         setTimeout(()=>{
           const q2=currentLesson.questions[currentQ];
           const shuffled=[...q2.words].sort(()=>Math.random()-.5);
           document.getElementById('word-chips').innerHTML=shuffled.map(w=>`<div class="word-chip" onclick="placeWord(this,'${w}')">${w}</div>`).join('');
-          document.getElementById('sentence-slots').innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Try again...</div>';
+          document.getElementById('sentence-slots').innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Try again — build the sentence...</div>';
           document.getElementById('feedback-banner').className='feedback-banner';
+          // Re-show check button
+          document.getElementById('check-btn').style.display='inline-flex';
         },1800);
       } else {
-        // Re-enable check button after delay
         document.getElementById('check-btn').style.display='none';
         setTimeout(()=>{
           document.getElementById('check-btn').style.display='inline-flex';
@@ -1372,13 +1398,20 @@ function placeWord(el,word){
   el.classList.add('used');
   wordsPlaced.push(word);
   const slots=document.getElementById('sentence-slots');
+  // Clear placeholder on first word placed
   if(wordsPlaced.length===1)slots.innerHTML='';
   const slot=document.createElement('div');
-  slot.className='sentence-slot';slot.textContent=word;
+  slot.className='sentence-slot';
+  slot.textContent=word;
+  // Clicking a placed slot removes it
   slot.onclick=()=>{
-    wordsPlaced=wordsPlaced.filter(w=>w!==word);
-    slot.remove();el.classList.remove('used');
-    if(wordsPlaced.length===0)slots.innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Click words from the bank...</div>';
+    const idx=wordsPlaced.lastIndexOf(word);
+    if(idx>-1)wordsPlaced.splice(idx,1);
+    slot.remove();
+    el.classList.remove('used');
+    if(wordsPlaced.length===0){
+      slots.innerHTML='<div style="font-family:var(--crimson);font-size:0.88rem;color:var(--text3);font-style:italic;padding:4px">Click words from the bank to build the sentence...</div>';
+    }
   };
   slots.appendChild(slot);
 }
